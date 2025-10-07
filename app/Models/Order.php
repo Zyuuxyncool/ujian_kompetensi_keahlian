@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    const STATUSES = [
+        0 => 'pending',
+        1 => 'paid',
+        2 => 'shipped',
+        3 => 'completed',
+        4 => 'cancelled'
+    ];
+
     protected $fillable = [
         'user_id',
         'total_price',
@@ -21,5 +29,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getStatusCaptionAttribute()
+    {
+        return self::STATUSES[$this->attributes['status']] ?? 'Unknown';
     }
 }

@@ -11,12 +11,12 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    const LIST_AKSES = ['Administrator', 'Seller', 'Buyer'];
+    const BASE_ROUTES = [
+        'Administrator' => 'admin',
+        'Seller' => 'seller',
+        'Buyer' => 'buyer'
+    ];
     protected $fillable = [
         'name',
         'email',
@@ -44,5 +44,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function akses()
+    {
+        return $this->hasOne(UserAkses::class);
+    }
+
+    public function list_akses()
+    {
+        return $this->hasMany(UserAkses::class);
     }
 }

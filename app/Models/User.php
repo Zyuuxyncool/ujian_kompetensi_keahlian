@@ -11,11 +11,14 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    const LIST_AKSES = ['Administrator', 'Seller', 'Buyer'];
+    const LIST_AKSES = ['Administrator', 'Seller', 'Buyer', 'Shipper', 'Shipper Sub', 'Courier'];
     const BASE_ROUTES = [
         'Administrator' => 'admin',
         'Seller' => 'seller',
-        'Buyer' => 'buyer'
+        'Buyer' => 'buyer',
+        'Shipper' => 'shipper',
+        'Shipper Sub' => 'shipper_sub',
+        'Courier' => 'courier',
     ];
     protected $fillable = [
         'name',

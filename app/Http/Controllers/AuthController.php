@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -27,8 +28,16 @@ class AuthController extends Controller
         auth()->login($user, !$request->has('remember'));
 
         $user_levels = $userService->list_user_level();
-        $base_routes = $userService->base_route()[$user_levels[$user->user_level_id]];
+        $base_routes = $userService->base_routes()[$user_levels[$user->user_level_id]];
         return redirect()->route($base_routes . '.dashboard.index');
+    }
+
+    public function register(Request $request)
+    {
+        $role = $request->input('role') ?? 'Buyer';
+        if (auth()->check()) return redirect()->route('siapkerja');
+        if (!in_array($role, ['Masyarakat', 'Perusahaan'])) abort(404);
+        return view('auth.register', compact('role'));
     }
 
     public function logout()

@@ -15,6 +15,9 @@ return new class extends Migration
             $table->string('name'); // nama sub-shipper atau kecamatan
             $table->string('contact')->nullable(); // nomor/kontak sub-shipper
             $table->text('service_area')->nullable(); // kecamatan/desa yang dilayani
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->integer('radius')->default(0);
             $table->timestamps();
         });
     }

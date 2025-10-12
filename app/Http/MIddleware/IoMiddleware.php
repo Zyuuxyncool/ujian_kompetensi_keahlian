@@ -15,7 +15,7 @@ class IoMiddleware
         $user_roles = $user->list_akses->pluck('akses')->toArray();
         $role = $user->akses->akses;
         $active_role = session('active_role', $role);
-
+        
 
         if ($request->method() === 'GET' && !$request->ajax()) {
             $menuService = new MenuService();
@@ -32,10 +32,11 @@ class IoMiddleware
 
             $route = $request->route()->getName();
             $head_route = head(explode('.', $route));
-
-            if ($role == 'Perusahaan' || $role == 'Masyarakat') {
-                if ($head_route == 'admin') abort(403);
+            
+            if (in_array(strtolower($role), ['buyer', 'seller']) && $head_route === 'admin') {
+                abort(403, 'Access Denied.');
             }
+
 
         }
         return $next($request);

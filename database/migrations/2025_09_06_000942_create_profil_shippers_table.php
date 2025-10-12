@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('company_name'); // nama ekspedisi / kota
             $table->string('code')->unique(); // kode shipper, misal JNE, JNT
             $table->string('contact')->nullable(); // nomor/email kontak
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->integer('radius')->default(0);
             $table->timestamps();
         });
     }

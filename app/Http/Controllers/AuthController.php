@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\ProfilBuyerService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
 
 class AuthController extends Controller
 {
 
     public function login()
     {
-        if (auth()->check()) return redirect('koperasi');
+        if (auth()->check()) return redirect('buyer');
         return view('auth.login');
     }
 
@@ -27,17 +29,45 @@ class AuthController extends Controller
 
         auth()->login($user, !$request->has('remember'));
 
-        $user_levels = $userService->list_user_level();
-        $base_routes = $userService->base_routes()[$user_levels[$user->user_level_id]];
-        return redirect()->route($base_routes . '.dashboard.index');
+        $akses = $user->akses->akses ?? 'Buyer';
+        $base_routes = $userService->base_routes();
+        if ($akses === 'Buyer') {
+            return redirect()->route($base_routes[$akses] . '.landing');
+        } else {
+            return redirect()->route($base_routes[$akses] . '.dashboard');
+        }
     }
 
     public function register(Request $request)
     {
-        $role = $request->input('role') ?? 'Buyer';
+        $role = $request->input('role', 'Buyer');
         if (auth()->check()) return redirect()->route('siapkerja');
-        if (!in_array($role, ['Masyarakat', 'Perusahaan'])) abort(404);
+        $allowed = ['Buyer'];
+        if (!in_array($role, $allowed)) $role = 'Buyer';
         return view('auth.register', compact('role'));
+    }
+
+    public function register_proses(RegisterRequest $request)
+    {
+        $userService = new UserService();
+        $profilBuyerService = new ProfilBuyerService();
+
+        // Role default: Buyer
+        $role = $request->input('role') ?? 'Buyer';
+
+        if ($role === 'Buyer') {
+            $user = $userService->store([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => $request->input('password')
+            ]);
+            $user->akses()->create(['akses' => 'Buyer']);
+            $profilBuyerService->store(['user_id' => $user->id, 'nama' => $user->name]);
+            auth()->login($user);
+        }
+
+        $base_routes = $userService->base_routes();
+        return redirect()->route($base_routes[$user->akses->akses] ?? '/');
     }
 
     public function logout()

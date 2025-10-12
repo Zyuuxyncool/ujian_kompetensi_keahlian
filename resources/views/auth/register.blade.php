@@ -1,83 +1,131 @@
 @extends('admin.layouts.layout')
 
-@section('title')
-    Register -
-@endsection
+@section('title', 'Register - Nusantara Store')
 
-@section('body-class')
-    auth-bg
-@endsection
+@section('body-class', 'auth-bg')
 
 @push('styles')
     <style>
         body {
-            background: url('{{ asset('images/bg-login.jpg') }}') no-repeat center;
-            background-size: cover;
+            background: linear-gradient(135deg, #F3E9DD 0%, #D6EADF 50%, #F0E1C0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
         }
 
-        [data-bs-theme="dark"] body {
-            background: url('{{ asset('images/bg-login.jpg') }}') no-repeat center;
-            background-size: cover;
+        .register-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 440px;
+            padding: 45px 50px;
+            transition: all 0.3s ease;
+        }
+
+        .register-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        .register-title {
+            font-size: 34px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #9E6B3E, #00796B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .register-subtitle {
+            font-size: 15px;
+            color: #6b7280;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 10px 15px;
+            border: 1px solid #E0E0E0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #00796B;
+            box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #00796B, #9E6B3E);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #00695C, #8E5F35);
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 121, 107, 0.3);
+        }
+
+        .login-links a {
+            text-decoration: none;
+            color: #9E6B3E;
+            transition: color 0.3s ease;
+        }
+
+        .login-links a:hover {
+            color: #7B542C;
+        }
+
+        @media (max-width: 576px) {
+            .register-card {
+                padding: 35px 25px;
+                max-width: 90%;
+            }
         }
     </style>
 @endpush
 
 @section('body')
-    <div class="d-flex flex-column flex-center flex-column-fluid">
-        <div class="d-flex flex-column flex-center p-10">
-            <div class="card card-flush w-lg-800px py-5">
-                <div class="card-body py-15 py-lg-10">
-                    <form action="{{ route('register.proses', ['role' => $role]) }}" method="post">
-                        @csrf
-                        <x-input type="hidden" name="role" :value="$role" />
-                        <div class="text-center">
-                            <a href="{{ url('/') }}" class=""><img alt="Logo" src="{{ asset('images/logo.png') }}" class="h-40px mb-6"/></a>
-                            <h1 class="fw-bolder text-gray-900 mb-2">Daftar Akun</h1>
-                            <div class="fs-6 fw-semibold text-gray-500 mb-10">Daftar akun untuk mulai menggunakan {{ env('APP_NAME') }}</div>
-                        </div>
-
-                        <div class="w-100 mb-6 px-10">
-                            @if($role === 'Masyarakat')
-                                <x-metronic-input name="nik" type="text" class="only-numeric" caption="NIK" placeholder="NIK / Nomor KTP" class="only-numeric" :value="old('nik')" maxLength="16" minLength="16" />
-                                <x-metronic-input name="nama" type="text" caption="Nama Lengkap" placeholder="Nama Sesuai KTP" :value="old('nama')" />
-{{--                                <p style="color: red;">Jika NIK anda "HAS ALREADY BEEN TAKEN" maka silahkan pakai lupa password dibawah ini</p>--}}
-                            @else
-                                <x-metronic-input name="nama" type="text" caption="Nama Perusahaan" placeholder="Nama Perusahaan" :value="old('nama')" />
-                                <x-metronic-input name="sektor" type="text" caption="Sektor Perusahaan" placeholder="Sektor Perusahaan" :value="old('sektor')" />
-                            @endif
-                            <x-metronic-input name="notelp" type="text" caption="No.Telp" class="only-numeric" placeholder="Ada Whatsapp Aktif" :value="old('notelp')" />
-                            <x-metronic-input name="email" type="text" caption="Email" placeholder="Email" :value="old('email')" />
-                            <x-metronic-input name="password" type="password" caption="Password" placeholder="Password" />
-                            <x-metronic-input name="password_confirmation" type="password" caption="Ulangi Password" placeholder="Ulangi password, agar tidak salah ketik" />
-
-                            @if($role === 'Perusahaan')
-                                <p>Akun dan profil perusahaan yang anda register, akan divalidasi oleh BIDANG PENTA - DISNAKER KAB. SIDOARJO, dan diharapkan datang ke kantor BIDANG PENTA - DISNAKER KAB. SIDOARJO pada jam kerja</p>
-                            @endif
-                        </div>
-
-                        <div class="d-flex flex-column mx-lg-10 mb-6">
-                            <button type="submit" class="btn btn-primary mb-3 ps-8">
-                                <i class="ki-duotone ki-entrance-left fs-3 me-0 ms-1"><span class="path1"></span><span class="path2"></span></i>
-                                Daftar
-                            </button>
-                        </div>
-
-                        <div class="px-10 mb-8"><hr></div>
-
-                        <div class="px-10 d-flex flex-column gap-8">
-                            <a href="{{ route('login') }}" class="text-dark fw-bold fs-4 d-flex flex-row justify-content-center align-items-center gap-4">
-                                <div class="w-20px"></div>
-                                <p class="my-0 lh-0">Sudah Punya Akun? Login</p>
-                                <img src="{{ asset('images/ic_right.png') }}" alt="" class="h-20px w-20px">
-                            </a>
-                            <a href="{{ route('forgot_password') }}" class="text-dark fw-bold fs-4 d-flex flex-row justify-content-center align-items-center gap-4">
-                                <p style="color: red;">Lupa Password Pelamar Kerja</p>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <div class="register-card">
+        <div class="text-center mb-4">
+            <h1 class="register-title">Nusantara Store</h1>
+            <p class="register-subtitle">Buat akun untuk mulai berbelanja</p>
         </div>
+
+        <form action="{{ route('register.proses', ['role' => 'Buyer']) }}" method="post">
+            @csrf
+            <div class="mb-3">
+                <x-metronic-input name="name" type="text" caption="Nama Lengkap" placeholder="Masukkan Nama Lengkap"
+                    :value="old('name')" :viewtype="2" />
+            </div>
+
+            <div class="mb-3">
+                <x-metronic-input name="email" type="text" caption="Email" placeholder="Masukkan Email"
+                    :value="old('email')" :viewtype="2" />
+            </div>
+
+            <div class="mb-3">
+                <x-metronic-input name="password" type="password" caption="Password" placeholder="Masukkan Password"
+                    :viewtype="2" />
+            </div>
+
+            <div class="mb-4">
+                <x-metronic-input name="password_confirmation" type="password" caption="Konfirmasi Password"
+                    placeholder="Ulangi Password" :viewtype="2" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">DAFTAR</button>
+
+            <div class="login-links text-center">
+                <a href="{{ route('login') }}" class="fw-semibold">Sudah Punya Akun? Masuk Disini</a>
+            </div>
+        </form>
     </div>
 @endsection
 

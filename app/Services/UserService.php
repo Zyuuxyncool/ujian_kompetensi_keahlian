@@ -10,8 +10,15 @@ class UserService extends Service
     public function search($params = [])
     {
         $user = User::orderBy('id');
+        $name = $params['nama'] ?? '';
+        if ($name !== '') $user = $user->where('nama', 'like', "%$name%");
 
-        $user = $this->searchFilter($params, $user, []);
+        $not_id = $params['not_id'] ?? '';
+        if ($not_id !== '') $user = $user->where('id', '<>', $not_id);
+
+        $akses = $params['akses'] ?? '';
+        if ($akses !== '') $user = $user->whereHas('list_akses', fn($list_akses) => $list_akses->where('akses', $akses));
+        $user = $this->searchFilter($params, $user, ['email']);
         return $this->searchResponse($params, $user);
     }
 

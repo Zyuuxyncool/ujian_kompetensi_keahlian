@@ -15,6 +15,9 @@ return new class extends Migration
             $table->foreignId('shipper_sub_id')->constrained('shipper_subs')->cascadeOnDelete(); // sub-shipper
             $table->string('name'); // nama kurir
             $table->string('phone')->nullable(); // nomor kontak kurir
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->integer('radius')->default(0);
             $table->smallInteger('status')->default(1); // 1=aktif, 0=nonaktif
             $table->timestamps();
         });

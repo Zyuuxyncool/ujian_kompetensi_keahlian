@@ -20,10 +20,12 @@ class User extends Authenticatable
         'Shipper Sub' => 'shipper_sub',
         'Courier' => 'courier',
     ];
+    protected $table = 'users';
     protected $fillable = [
         'name',
         'email',
         'password',
+        'reset_token',
     ];
 
     /**
@@ -57,5 +59,15 @@ class User extends Authenticatable
     public function list_akses()
     {
         return $this->hasMany(UserAkses::class);
+    }
+
+    public function buyer()
+    {
+        return $this->hasOne(ProfilBuyer::class);
+    }
+
+    public function seller()
+    {
+        return $this->hasOne(ProfilSeller::class);
     }
 }

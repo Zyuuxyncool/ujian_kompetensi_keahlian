@@ -14,7 +14,8 @@ class Order extends Model
         3 => 'completed',
         4 => 'cancelled'
     ];
-
+    
+    protected $table = 'orders';
     protected $fillable = [
         'user_id',
         'total_price',

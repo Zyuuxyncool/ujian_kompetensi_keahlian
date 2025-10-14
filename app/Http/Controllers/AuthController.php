@@ -52,9 +52,7 @@ class AuthController extends Controller
         $userService = new UserService();
         $profilBuyerService = new ProfilBuyerService();
 
-        // Role default: Buyer
         $role = $request->input('role') ?? 'Buyer';
-
         if ($role === 'Buyer') {
             $user = $userService->store([
                 'name' => $request->input('name'),

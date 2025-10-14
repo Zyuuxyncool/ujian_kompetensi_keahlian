@@ -7,7 +7,7 @@
         @if(empty($user))
             <x-metronic-select name="akses" caption="Akses" :options="$list_akses" :value="$user->akses ?? ''" />
         @endif
-        <x-metronic-input name="nama" caption="Nama" :value="$user->nama ?? ''" />
+        <x-metronic-input name="name" caption="Nama" :value="$user->name ?? ''" />
         <x-metronic-input name="email" caption="Email" :value="$user->email ?? ''" />
         <x-metronic-input name="password" caption="Password" type="password" />
         <x-metronic-input name="password_confirmation" caption="Ulangi Password" type="password" />

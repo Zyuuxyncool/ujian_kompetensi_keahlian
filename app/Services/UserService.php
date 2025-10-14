@@ -10,8 +10,8 @@ class UserService extends Service
     public function search($params = [])
     {
         $user = User::orderBy('id');
-        $name = $params['nama'] ?? '';
-        if ($name !== '') $user = $user->where('nama', 'like', "%$name%");
+        $name = $params['name'] ?? '';
+        if ($name !== '') $user = $user->where('name', 'like', "%$name%");
 
         $not_id = $params['not_id'] ?? '';
         if ($not_id !== '') $user = $user->where('id', '<>', $not_id);
@@ -29,11 +29,20 @@ class UserService extends Service
 
     public function store($params)
     {
-        return User::create($params);
+        $params = $this->clean_password($params);
+        $user = User::create($params);
+        if (!empty($params['akses'])) {
+            UserAkses::create([
+                'user_id' => $user->id,
+                'akses' => $params['akses'],
+            ]);
+        }
+        return $user;
     }
 
     public function update($id, $params)
     {
+        $params = $this->clean_password($params);
         $user = User::find($id);
         if (!empty($user)) $user->update($params);
         return $user;

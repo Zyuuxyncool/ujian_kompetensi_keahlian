@@ -10,7 +10,7 @@ class MenuService
         ['route' => 'admin.dashboard', 'caption' => 'Dashboard'],
         ['route' => 'admin.user.index', 'caption' => 'User Program'],
         'data_master' => ['route' => '#', 'caption' => 'Data Master', 'sub_menus' => [
-            ['route' => 'admin.kategori.index', 'caption' => 'Kategori'],
+            ['route' => 'admin.categories.index', 'caption' => 'Kategori'],
             ['route' => 'admin.sub_kategori.index', 'caption' => 'Sub Kategori'],
             ['route' => 'admin.brand.index', 'caption' => 'Brand'],
         ]],
@@ -49,13 +49,16 @@ class MenuService
         $segments = explode('.', $current_route);
         $breadcrumbs = [];
 
-        foreach ($segments as $index => $segment) {
-            if ($segment !== 'index') {
-                $route_partial = implode('.', array_slice($segments, 0, $index + 1));
-                $caption = ucwords(str_replace('_', ' ', $segment)); // Kapital di setiap kata
-                $breadcrumbs[] = ['route' => $route_partial, 'caption' => $caption];
-            }
+        if (count($segments) >= 2) {
+            $parent_route = implode('.', array_slice($segments, 0, count($segments) - 1));
+            $breadcrumbs[] = ['route' => $parent_route, 'caption' => ucwords(str_replace('_', ' ', $segments[0]))];
         }
+
+        $caption = ucwords(str_replace('_', ' ', last($segments)));
+        if ($caption !== 'Index') {
+            $breadcrumbs[] = ['route' => $current_route, 'caption' => $caption];
+        }
+
 
         $current_menu = [];
         $current_sub_menu = [];

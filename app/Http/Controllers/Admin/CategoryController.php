@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Services\CategoryService;
+use App\Services\DocumentService;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -31,6 +33,8 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $filename = DocumentService::save_file($request, 'file_photo', 'public/images/category');
+        if ($filename !== '') $request->merge(['photo' => $filename]);
         return $this->categoryService->store($request->all());
     }
 
@@ -42,6 +46,8 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
+        $filename = DocumentService::save_file($request, 'file_photo', 'public/images/category');
+        if ($filename !== '') $request->merge(['photo' => $filename]);
         return $this->categoryService->update($request->all(), $id);
     }
 

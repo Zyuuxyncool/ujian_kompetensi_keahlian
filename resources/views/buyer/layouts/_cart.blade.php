@@ -1,5 +1,6 @@
 @php($cart_items = $cart_items ?? [])
 @auth
+
     <div class="d-flex align-items-center ms-1 ms-lg-2">
         <!-- Cart Icon -->
         <div class="btn btn-icon btn-active-light btn-active-color-success w-30px h-30px w-md-40px h-md-40px position-relative"

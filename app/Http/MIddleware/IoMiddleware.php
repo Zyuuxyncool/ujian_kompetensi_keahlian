@@ -37,7 +37,6 @@ class IoMiddleware
                 abort(403, 'Access Denied.');
             }
 
-
         }
         return $next($request);
     }

@@ -11,6 +11,7 @@ class SubCategory extends Model
     protected $table = 'sub_categories';
     protected $fillable = [
         'name', 
+        'photo',
         'category_id'
     ];
 

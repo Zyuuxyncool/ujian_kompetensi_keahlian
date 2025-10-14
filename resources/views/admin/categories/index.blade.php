@@ -1,18 +1,18 @@
 @extends('admin.layouts.index')
 
 @section('title')
-    User -
+    Category -
 @endsection
 
 @section('content')
     <div class="content flex-column-fluid" id="kt_content">
         <div class="toolbar d-flex flex-stack flex-wrap mb-5 mb-lg-7" id="kt_toolbar">
             <div class="page-title d-flex flex-column py-1">
-                <h1 class="d-flex align-items-center my-1"><span class="text-dark fw-bold fs-1">User</span></h1>
+                <h1 class="d-flex align-items-center my-1"><span class="text-dark fw-bold fs-1">Category</span></h1>
                 @include('admin.layouts._breadcrumb')
             </div>
             <div class="d-flex align-items-center py-1 gap-6">
-                <button type="button" onclick="info()" class="btn btn-flex btn-sm btn-primary fw-bold border-0 fs-6 h-40px">User Baru</button>
+                <button type="button" onclick="info()" class="btn btn-flex btn-sm btn-primary fw-bold border-0 fs-6 h-40px">Category Baru</button>
             </div>
         </div>
 
@@ -25,9 +25,9 @@
                         <div class="card-title d-flex flex-row align-items-center gap-4">
                             <div class="d-flex align-items-center position-relative gap-6 w-100 w-lg-250px">
                                 <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i>
-                                <x-input name="name" prefix="search_" caption="Search User" class="w-lg-250px ps-12" />
+                                <x-input name="name" prefix="search_" caption="Search categories" class="w-lg-250px ps-12" />
                             </div>
-                            <x-select name="akses" prefix="search_" :options="$list_akses" class="w-lg-250px form-select" onchange="search_data()" />
+                            {{-- <x-select name="akses" prefix="search_" :options="$list_akses" class="w-lg-250px form-select" onchange="search_data()" /> --}}
                         </div>
                     </form>
                 </div>
@@ -38,7 +38,7 @@
 
     <div class="modal fade" tabindex="-1" id="modal_info">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" id="modal_info_user">
+            <div class="modal-content" id="modal_info_categories">
             </div>
         </div>
     </div>
@@ -49,11 +49,11 @@
         let $form_search = $('#form_search'),
             $table = $('#table'),
             $modal_info = $('#modal_info'),
-            $modal_info_user = $('#modal_info_user');
-        let selected_page = 1, _token = '{{ csrf_token() }}', base_url = '{{ route('admin.user.index') }}';
+            $modal_info_categories = $('#modal_info_categories');
+        let selected_page = 1, _token = '{{ csrf_token() }}', base_url = '{{ route('admin.categories.index') }}';
 
         let init = () => {
-            $modal_info_user.html('');
+            $modal_info_categories.html('');
             try { $modal_info.modal('hide'); } catch (e) { }
             search_data(selected_page);
         }
@@ -65,8 +65,8 @@
             $.post(base_url + '/search', data, (result) => $table.html(result)).fail((xhr) => $table.html(xhr.responseText));
         }
 
-        let display_modal_info = (user) => {
-            $modal_info_user.html(user);
+        let display_modal_info = (categories) => {
+            $modal_info_categories.html(categories);
             $modal_info.modal('show');
         }
 

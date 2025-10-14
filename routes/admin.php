@@ -8,4 +8,7 @@ Route::prefix('/admin')->name('admin.')->group(function () {
 
     Route::resource('/user', App\Http\Controllers\Admin\UserController::class)->except(['show']);
     Route::post('/user/search', [App\Http\Controllers\Admin\UserController::class, 'search'])->name('user.search');
+
+    Route::resource('/categories', App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
+    Route::post('/categories/search', [App\Http\Controllers\Admin\CategoryController::class, 'search'])->name('categories.search');
 });

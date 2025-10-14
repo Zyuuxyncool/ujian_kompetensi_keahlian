@@ -2,6 +2,7 @@
     <div class="container-fluid d-flex align-items-center justify-content-between py-3 px-lg-8">
 
         {{-- === Logo / Brand === --}}
+        {{-- Kiri: Tetap berukuran alami --}}
         <div class="d-flex align-items-center gap-3">
             @if (count($current_side_menu ?? []) > 0)
                 <button class="btn btn-icon btn-active-icon-primary d-lg-none" id="kt_aside_toggle">
@@ -15,15 +16,21 @@
             </a>
         </div>
 
-        {{-- === Search Bar (tengah mirip Shopee) === --}}
-        <div class="d-none d-lg-flex flex-grow-1 justify-content-center ms-lg-10">
-            <form action="" method="GET" class="w-100" style="max-width: 420px;">
+        {{-- === Search Bar (Tengah Fix) === --}}
+        {{-- Kunci: 
+           1. Hapus margin-left: 250px manual.
+           2. Gunakan mx-auto untuk menengahkan di sisa ruang.
+           3. Tambahkan flex-shrink-0 pada search bar agar tidak ikut menyusut.
+        --}}
+        <div class="d-none d-lg-flex flex-grow-1 justify-content-center mx-auto flex-shrink-0">
+            <form action="" method="GET" style="max-width: 550px;" class="w-100">
                 <div
                     class="input-group nusantara-search rounded-pill overflow-hidden border border-success shadow-elevated">
                     <input type="text" name="q" class="form-control border-0 ps-4 py-2"
                         placeholder="Cari produk, toko, atau kategori..." aria-label="Search" required>
                     <button type="submit"
-                        class="btn btn-nusantara-icon d-flex align-items-center justify-content-center px-4">
+                        class="btn btn-nusantara-icon d-flex align-items-center justify-content-center px-4"
+                        style="background-color: #4CAF50;">
                         <i class="fa fa-search fs-5 text-white"></i>
                     </button>
                 </div>
@@ -31,7 +38,8 @@
         </div>
 
         {{-- === Menu kanan (notif, user, login) === --}}
-        <div class="d-flex align-items-center gap-4">
+        {{-- Kanan: Tetap berukuran alami --}}
+        <div class="d-flex align-items-center gap-4 flex-shrink-0">
             @guest
                 <a href="{{ route('login') }}"
                     class="btn btn-outline btn-active-success border-success btn-sm fs-6 px-6 py-2"

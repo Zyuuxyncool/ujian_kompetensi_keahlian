@@ -14,9 +14,7 @@
     <link href="{{ asset('assets_admin/plugins/custom/bootstrap-datepicker/bootstrap-datepicker.min.css') }}"
         rel="stylesheet" />
     <link href="{{ asset('assets_admin/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <!-- Ionicons CDN -->
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
 
     <link href="{{ asset('assets_admin/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets_admin/css/custom.css') }}" rel="stylesheet" type="text/css" />
@@ -350,7 +348,6 @@
         .footer-bottom {
             border-color: rgba(255, 255, 255, 0.1) !important;
         }
-        
     </style>
     @stack('styles')
 </head>
@@ -438,6 +435,9 @@
     </script>
     <script src="{{ asset('assets_admin/plugins/global/plugins.bundle.js') }}"></script>
     @stack('js_plugins')
+    <!-- Ionicons CDN -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="{{ asset('assets_admin/js/scripts.bundle.js') }}"></script>
     <script src="{{ asset('assets_admin/plugins/custom/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
     <script src="{{ asset('assets_admin/js/auto-numeric.js') }}"></script>

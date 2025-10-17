@@ -58,9 +58,8 @@
                     </div>
                     <div class="position-relative mt-6">
                         @if ($profil->latitude && $profil->longitude)
-                            {{-- Menggunakan format embed standar dengan koordinat $profil --}}
                             <iframe id="map_iframe"
-                                src="https://www.google.com/maps/embed/v1/view?key=API_KEY&center=lat,lon{{ $profil->latitude }},{{ $profil->longitude }}&z=15&output=embed"
+                                src="https://www.google.com/maps/embed/v1/view?key=API_KEY&center={{ $profil->latitude }},{{ $profil->longitude }}&z=15&output=embed"
                                 width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade">
                             </iframe>
@@ -69,7 +68,6 @@
                                 class="btn btn-sm btn-primary fw-semibold position-absolute ms-3 mt-3"
                                 style="left: 0; top: 0;">Buka Google Maps</a>
                         @else
-                            {{-- Peta default (misal pusat kota Sidoarjo) --}}
                             <iframe id="map_iframe" src="https://maps.google.com/maps?q=Indonesia&z=5&output=embed"
                                 width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -78,7 +76,6 @@
                                 style="left: 0; top: 0;">Lokasi Belum Tersedia</a>
                         @endif
 
-                        {{-- TOMBOL UNTUK MENDAPATKAN LOKASI PENGGUNA --}}
                         <button id="get_location_btn" type="button"
                             class="btn btn-info fw-semibold position-absolute ms-3 mt-3" style="right: 0; top: 0;">
                             <i class="fas fa-location-arrow me-2"></i> Dapatkan Lokasi Saya
@@ -93,91 +90,152 @@
     </section>
 @endsection
 @push('scripts')
-    <script>
-        init_form_element()
+<script>
+init_form_element();
 
-        $provinsi = $('#provinsi');
-        $kabupaten = $('#kabupaten');
-        $kecamatan = $('#kecamatan');
-        $desa = $('#desa');
+// --- Elemen Lokasi ---
+const $provinsi = $('#provinsi');
+const $kabupaten = $('#kabupaten');
+const $kecamatan = $('#kecamatan');
+const $desa = $('#desa');
 
-        get_location($provinsi, 1, '', '{{ $profil->provinsi ?? '' }}');
-        $provinsi.change(() => {
-            let id = $provinsi.find('option:selected').attr('data-id');
-            get_location($kabupaten, 2, id, '{{ $profil->kabupaten ?? '' }}');
+// Inisialisasi dan logic dropdown lokasi Anda
+get_location($provinsi, 1, '', '{{ $profil->provinsi ?? '' }}');
+$provinsi.change(() => {
+    const id = $provinsi.find('option:selected').attr('data-id');
+    get_location($kabupaten, 2, id, '{{ $profil->kabupaten ?? '' }}');
+});
+$kabupaten.change(() => {
+    const id = $kabupaten.find('option:selected').attr('data-id');
+    get_location($kecamatan, 3, id, '{{ $profil->kecamatan ?? '' }}');
+});
+$kecamatan.change(() => {
+    const id = $kecamatan.find('option:selected').attr('data-id');
+    get_location($desa, 4, id, '{{ $profil->desa ?? '' }}');
+});
+
+// --- Elemen Peta & Geolocation ---
+const $latInput = $('#input_latitude');
+const $lonInput = $('#input_longitude');
+const $mapIframe = $('#map_iframe');
+const $mapLink = $('#map_link');
+const $locButton = $('#get_location_btn');
+
+let locationSuccessTimer;
+
+function updateMap(lat, lon) {
+    // URL peta menggunakan format yang benar
+    const embedUrl = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`; 
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+    
+    $mapIframe.attr('src', embedUrl);
+    $mapLink.attr('href', mapUrl).text('Buka Google Maps')
+        .removeClass('btn-secondary').addClass('btn-primary');
+}
+
+function handleLocationError(errorMsg) {
+    // Pastikan timer sukses dibersihkan jika error terjadi
+    if (locationSuccessTimer) {
+        clearTimeout(locationSuccessTimer);
+    }
+    
+    // Reset input & iframe ke default
+    $latInput.val('');
+    $lonInput.val('');
+    $mapIframe.attr('src', 'https://maps.google.com/maps?q=&z=15&output=embed'); // URL default
+    $mapLink.attr('href', '#').text('Lokasi Belum Tersedia')
+        .removeClass('btn-primary').addClass('btn-secondary');
+
+    // Mengatur state tombol ke Error/Gagal
+    $locButton.html('<i class="fas fa-times me-2"></i> Gagal! Coba Lagi');
+    $locButton.prop('disabled', false);
+
+    // MENGGANTI ALERT DENGAN SWEETALERT2
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal Mendapatkan Lokasi',
+        text: errorMsg,
+        confirmButtonText: 'Tutup'
+    });
+    console.warn(`Error Lokasi: ${errorMsg}`);
+}
+
+function getBrowserLocation() {
+    if (!navigator.geolocation) {
+        // MENGGANTI ALERT DENGAN SWEETALERT2 UNTUK KASUS BROWSER TIDAK SUPPORT
+        Swal.fire({
+            icon: 'warning',
+            title: 'Browser Tidak Didukung',
+            text: 'Browser Anda tidak mendukung Geolocation API. Silakan update browser Anda.',
+            confirmButtonText: 'Oke'
         });
-        $kabupaten.change(() => {
-            let id = $kabupaten.find('option:selected').attr('data-id');
-            get_location($kecamatan, 3, id, '{{ $profil->kecamatan ?? '' }}');
-        });
-        $kecamatan.change(() => {
-            let id = $kecamatan.find('option:selected').attr('data-id');
-            get_location($desa, 4, id, '{{ $profil->desa ?? '' }}');
-        });
+        return;
+    }
 
-        const $latInput = $('#input_latitude');
-        const $lonInput = $('#input_longitude');
-        const $mapIframe = $('#map_iframe');
-        const $mapLink = $('#map_link');
-        const $locButton = $('#get_location_btn');
-
-        // Fungsi untuk memperbarui tampilan peta setelah koordinat baru didapat
-        function updateMap(lat, lon) {
-            // ⭐ PERBAIKAN: Menggunakan ${lat} dan ${lon}
-            const embedUrl = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
-            const mapUrl = `https://www.google.com/maps/search/?api=1&query=$${lat},${lon}`;
-
-            $mapIframe.attr('src', embedUrl);
-            $mapLink.attr('href', mapUrl).text('Buka Google Maps').removeClass('btn-secondary').addClass('btn-primary');
-        }
-
-        // Fungsi utama untuk mendapatkan lokasi dari browser
-        function getBrowserLocation() {
-            // ... (Fungsi ini tidak diubah dan sudah benar) ...
-            if (navigator.geolocation) {
-                $locButton.html('<span class="spinner-border spinner-border-sm me-2"></span> Mencari Lokasi...');
-                $locButton.prop('disabled', true);
-
-                navigator.geolocation.getCurrentPosition(
-                    // Success
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-
-                        // 1. ISI INPUT TERSEMBUNYI (Data akan dikirim saat form disubmit)
-                        $latInput.val(lat);
-                        $lonInput.val(lon);
-
-                        // 2. PERBARUI TAMPILAN PETA SECARA INSTAN
-                        updateMap(lat, lon);
-
-                        $locButton.html('<i class="fas fa-check me-2"></i> Lokasi Ditemukan!');
-                        setTimeout(() => {
-                            $locButton.html('<i class="fas fa-location-arrow me-2"></i> Dapatkan Lokasi Saya');
-                            $locButton.prop('disabled', false);
-                        }, 3000);
-
-                        console.log(`Lokasi Baru: Lat ${lat}, Lon ${lon}`);
-                    },
-                    // Error
-                    (error) => {
-                        $locButton.html('<i class="fas fa-times me-2"></i> Gagal! Coba Lagi');
-                        $locButton.prop('disabled', false);
-                        let msg = (error.code === 1) ? 'Akses Lokasi Ditolak.' : 'Gagal mendapatkan lokasi.';
-                        alert(`Error: ${msg}`);
-                        console.warn(`Error Lokasi (${error.code}): ${error.message}`);
-                    }, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                alert("Browser Anda tidak mendukung Geolocation API.");
+    // Membersihkan timer lama jika tombol ditekan lagi
+    if (locationSuccessTimer) {
+        clearTimeout(locationSuccessTimer);
+    }
+    
+    // Mengatur state tombol ke Mencari Lokasi...
+    $locButton.html('<span class="spinner-border spinner-border-sm me-2"></span> Mencari Lokasi...');
+    $locButton.prop('disabled', true);
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => { // Success
+            if (!position || !position.coords) {
+                handleLocationError('Data lokasi tidak valid.');
+                return;
             }
-        }
 
-        // Panggil fungsi saat tombol ditekan
-        $locButton.on('click', getBrowserLocation);
-    </script>
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            $latInput.val(lat);
+            $lonInput.val(lon);
+            updateMap(lat, lon);
+
+            // Mengatur state tombol ke Sukses
+            $locButton.html('<i class="fas fa-check me-2"></i> Lokasi Ditemukan!');
+            
+            // Menyimpan ID timer untuk reset tombol otomatis
+            locationSuccessTimer = setTimeout(() => {
+                $locButton.html('<i class="fas fa-location-arrow me-2"></i> Dapatkan Lokasi Saya');
+                $locButton.prop('disabled', false);
+            }, 3000);
+
+            // console.log(`Lokasi Baru: Lat ${lat}, Lon ${lon}`);
+            
+            // (Opsional: Swal sukses singkat)
+            Swal.fire({
+                icon: 'success',
+                title: 'Lokasi Berhasil Ditemukan!',
+                showConfirmButton: false,
+                timer: 1500,
+                toast: true,
+                position: 'top-end',
+            });
+            
+        },
+        (error) => { // Error
+            let msg = '';
+            switch(error.code) {
+                case 1: msg = 'Akses Lokasi Ditolak oleh pengguna. Mohon izinkan akses lokasi di pengaturan browser Anda.'; break;
+                case 2: msg = 'Posisi tidak dapat ditentukan karena sumber lokasi tidak tersedia.'; break;
+                case 3: msg = 'Waktu permintaan lokasi habis.'; break;
+                default: msg = 'Terjadi kesalahan tidak terduga saat mengambil lokasi.'; 
+            }
+            // MEMANGGIL PENANGAN ERROR DENGAN SWEETALERT2
+            handleLocationError(msg);
+        },
+        {
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 0
+        }
+    );
+}
+
+$locButton.on('click', getBrowserLocation);
+</script>
 @endpush

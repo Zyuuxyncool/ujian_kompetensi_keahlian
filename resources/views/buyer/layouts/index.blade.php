@@ -14,8 +14,7 @@
     <link href="{{ asset('assets_admin/plugins/custom/bootstrap-datepicker/bootstrap-datepicker.min.css') }}"
         rel="stylesheet" />
     <link href="{{ asset('assets_admin/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
-
-
+    <link href="{{ asset('assets_landing/css/landing.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets_admin/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets_admin/css/custom.css') }}" rel="stylesheet" type="text/css" />
     <style>
@@ -441,6 +440,7 @@
     <script src="{{ asset('assets_admin/js/scripts.bundle.js') }}"></script>
     <script src="{{ asset('assets_admin/plugins/custom/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
     <script src="{{ asset('assets_admin/js/auto-numeric.js') }}"></script>
+    <script src="{{ asset('assets_landing/js/landing.js') }}"></script>
     <script src="{{ asset('assets_admin/js/io.js') }}"></script>
     <script>
         @if (session()->has('success'))

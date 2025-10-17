@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->uuid('uuid')->unique();
             $table->string('photo')->nullable();
+            $table->string('nik');
             $table->string('nama');
             $table->string('notlp')->nullable();
             $table->string('alamat')->nullable();
@@ -26,7 +27,8 @@ return new class extends Migration
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->integer('radius')->default(0);
-            $table->smallInteger('flag')->default(1);
+            $table->smallInteger('jenis_usaha');
+            $table->smallInteger('flag')->default(0);
             $table->timestamps();
         });
     }

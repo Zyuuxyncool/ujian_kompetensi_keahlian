@@ -15,7 +15,7 @@ class BuyerMiddleware
         $user = auth()->user() ?? [];
         if ($request->method() === 'GET') {
             $menuService = new MenuService();
-            $menus = $menuService->list_menu('Buyer');
+            $menus = $menuService->list_menu('Nusantara');
 
             $active_role = session('active_role', $user->akses->akses ?? '');
             if (!empty($user->buyer)) $user_menus = $menuService->list_menu('Buyer');

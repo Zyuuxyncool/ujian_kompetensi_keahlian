@@ -40,6 +40,9 @@
         {{-- === Menu kanan (notif, user, login) === --}}
         {{-- Kanan: Tetap berukuran alami --}}
         <div class="d-flex align-items-center gap-4 flex-shrink-0">
+            {{-- <div class="d-flex align-items-stretch ms-6" id="kt_header_nav"> --}}
+                {{-- @include('admin.layouts._menu') --}}
+            {{-- </div> --}}
             @guest
                 <a href="{{ route('login') }}"
                     class="btn btn-outline btn-active-success border-success btn-sm fs-6 px-6 py-2"
@@ -55,12 +58,12 @@
             @endauth
 
             {{-- Mobile toggle --}}
-            <button class="btn btn-icon btn-active-light-primary d-lg-none" id="kt_header_menu_mobile_toggle">
+            {{-- <button class="btn btn-icon btn-active-light-primary d-lg-none" id="kt_header_menu_mobile_toggle">
                 <i class="ki-duotone ki-text-align-left fs-2 fw-bold">
                     <span class="path1"></span><span class="path2"></span>
                     <span class="path3"></span><span class="path4"></span>
                 </i>
-            </button>
+            </button> --}}
         </div>
 
     </div>

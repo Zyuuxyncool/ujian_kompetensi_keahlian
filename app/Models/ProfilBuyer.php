@@ -16,6 +16,7 @@ class ProfilBuyer extends Model
         'uuid',
         'photo',
         'nama',
+        'jenis_kelamin',
         'notlp',
         'alamat',
         'provinsi',
@@ -30,5 +31,17 @@ class ProfilBuyer extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getJenisKelaminCaptionAttribute()
+    {
+        return $this->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
+    }
+
+    public function getUsiaAttribute()
+    {
+        $dob = new \DateTime($this->tanggal_lahir);
+        $today = new \DateTime();
+        return $today->diff($dob)->y;
     }
 }

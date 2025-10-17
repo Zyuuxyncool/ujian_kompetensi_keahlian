@@ -1,24 +1,28 @@
 <?php
 
 namespace App\Services;
+
 use App\Models\SubCategory;
+use App\Models\Category;
+use Illuminate\Support\Str;
 
 class SubCategoryService extends Service
 {
     public function search($params)
     {
-        $query = SubCategory::query();
+        $category_sub = SubCategory::orderBy('id');
 
-        if (!empty($params['name'])) {
-            $query->where('name', 'like', '%' . $params['name'] . '%');
-        }
-
-        return $query->paginate(10);
+        $category_id = $params['category_id'] ?? '';
+        if ($category_id !== '') $category_sub = $category_sub->whereHas('category', fn($list_cetegory) => $list_cetegory->where('id', $category_id));
+        
+        $category_sub = $this->searchFilter($params, $category_sub, ['name']);
+        return $this->searchResponse($params, $category_sub);
     }
 
-    public function store($data)
+    public function store($params)
     {
-        return SubCategory::create($data);
+        $params['uuid'] = Str::uuid();
+        return SubCategory::create($params);
     }
 
     public function find($id)
@@ -28,21 +32,26 @@ class SubCategoryService extends Service
 
     public function update($params, $id)
     {
-        $subCategory = SubCategory::find($id);
-        if (!empty($subCategory)) $subCategory->update($params);
-        return $subCategory;
+        $category_sub = SubCategory::find($id);
+        if (!empty($category_sub)) $category_sub->update($params);
+        return $category_sub;
     }
 
     public function delete($id)
     {
-        $subCategory = SubCategory::find($id);
-        if ($subCategory) {
+        $category_sub = SubCategory::find($id);
+        if ($category_sub) {
             try {
-                $subCategory->delete();
+                $category_sub->delete();
                 return true;
             } catch (\Throwable $e) {
-                return ['error' => 'Delete sub-category failed! This sub-category is currently being used'];  
+                return ['error' => 'Delete sub-category failed! This sub-category is currently being used'];
             }
         }
+    }
+
+    public function list_category()
+    {
+        return Category::orderBy('name', 'asc')->pluck('name', 'id')->toArray();
     }
 }

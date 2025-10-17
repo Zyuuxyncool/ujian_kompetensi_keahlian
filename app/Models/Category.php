@@ -9,6 +9,7 @@ class Category extends Model
 {
     protected $table = 'categories';
     protected $fillable = [
+        'uuid',
         'name',
         'photo',
         'parent_id'

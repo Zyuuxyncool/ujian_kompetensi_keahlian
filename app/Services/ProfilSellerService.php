@@ -44,4 +44,14 @@ class ProfilSellerService extends Service
         }
         return $seller;
     }
+
+    public function getJenisUsaha()
+    {
+        return ProfilSeller::JENIS_USAHA;
+    }
+
+    public function getFlag()
+    {
+        return ProfilSeller::FLAG;
+    }
 }

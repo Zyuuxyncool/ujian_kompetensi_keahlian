@@ -8,6 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('sub_categories', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('photo')->nullable();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();

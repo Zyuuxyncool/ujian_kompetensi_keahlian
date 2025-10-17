@@ -71,7 +71,7 @@ function paginate_options()
 
 function gender()
 {
-    return ['L' => 'Male', 'P' => 'Female'];
+    return ['L' => 'Laki - Laki', 'P' => 'Permepuan'];
 }
 
 function religion()

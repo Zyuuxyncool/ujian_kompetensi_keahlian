@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Brand;
+use Illuminate\Support\Str;
 
 class BrandService extends Service
 {
@@ -28,6 +29,7 @@ class BrandService extends Service
 
     public function store($params)
     {
+        $params['uuid'] = Str::uuid();
         return Brand::create($params);
     }
 

@@ -41,7 +41,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $role = $request->input('role', 'Buyer');
-        if (auth()->check()) return redirect()->route('siapkerja');
+        if (auth()->check()) return redirect()->route('buyer.landing');
         $allowed = ['Buyer'];
         if (!in_array($role, $allowed)) $role = 'Buyer';
         return view('auth.register', compact('role'));

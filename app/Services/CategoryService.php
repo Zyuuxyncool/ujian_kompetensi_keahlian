@@ -1,29 +1,28 @@
 <?php
 
 namespace App\Services;
+
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class CategoryService extends Service
 {
     public function search($params)
     {
-        $query = Category::query();
-
-        if (!empty($params['name'])) {
-            $query->where('name', 'like', '%' . $params['name'] . '%');
-        }
-
-        return $query->paginate(10);
+        $category = Category::orderBy('id');
+        $category = $this->searchFilter($params, $category, ['name']);
+        return $this->searchResponse($params, $category);
     }
 
-    public function store($data)
+    public function store($params)
     {
-        return Category::create($data);
+        $params['uuid'] = Str::uuid();
+        return Category::create($params);
     }
 
-    public function find($id)
+    public function find($value, $column = 'id')
     {
-        return Category::findOrFail($id);
+        return Category::where($column, $value)->first();
     }
 
     public function update($params, $id)
@@ -41,7 +40,7 @@ class CategoryService extends Service
                 $category->delete();
                 return true;
             } catch (\Throwable $e) {
-                return ['error' => 'Delete category failed! This category is currently being used'];  
+                return ['error' => 'Delete category failed! This category is currently being used'];
             }
         }
     }

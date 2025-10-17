@@ -17,6 +17,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('photo')->nullable();
             $table->string('nama');
+            $table->string('jenis_kelamin')->nullable();
             $table->string('notlp')->nullable();
             $table->string('alamat')->nullable();
             $table->string('provinsi')->nullable();

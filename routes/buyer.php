@@ -20,5 +20,9 @@ Route::prefix('/buyer')->middleware(['auth'])->name('buyer.')->group(function ()
     Route::get('/seller', [App\Http\Controllers\Buyer\SellerController::class, 'index'])->name('seller.index');
     Route::get('/seller/verify', [App\Http\Controllers\Buyer\SellerController::class, 'verify'])->name('seller.verify');
     Route::post('/seller/verify/store', [App\Http\Controllers\Buyer\SellerController::class, 'store'])->name('seller.verify.store');
+    Route::get('/seller/informasi_toko', [App\Http\Controllers\Buyer\SellerController::class, 'informasiToko'])->name('seller.informasi_toko');
+    Route::post('/seller/informasi_toko/store', [App\Http\Controllers\Buyer\SellerController::class, 'storeInformasiToko'])->name('seller.informasi_toko.store');
+    Route::get('/upload_produk', [App\Http\Controllers\Buyer\SellerController::class, 'uploadProduk'])->name('seller.upload_produk');
+    Route::post('/upload_produk/store', [App\Http\Controllers\Buyer\SellerController::class, 'storeUploadProduk'])->name('seller.upload_produk.store');
     // route lain yang butuh login
 });

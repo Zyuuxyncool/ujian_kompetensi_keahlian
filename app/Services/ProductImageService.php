@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Support\Str;
 
-class ProductService extends Service
+class ProductImageService extends Service
 {
     public function search($params = [])
     {
-        $product = Product::orderBy('id');
+        $product = ProductImage::orderBy('id');
 
         $product = $this->searchFilter($params, $product, []);
         return $this->searchResponse($params, $product);
@@ -17,25 +17,25 @@ class ProductService extends Service
 
     public function find($value, $column = 'id')
     {
-        return Product::where($column, $value)->first();
+        return ProductImage::where($column, $value)->first();
     }
 
     public function store($params)
     {
         $params['uuid'] = Str::uuid();
-        return Product::create($params);
+        return ProductImage::create($params);
     }
 
     public function update($id, $params)
     {
-        $product = Product::find($id);
+        $product = ProductImage::find($id);
         if (!empty($product)) $product->update($params);
         return $product;
     }
 
     public function delete($id)
     {
-        $product = Product::find($id);
+        $product = ProductImage::find($id);
         if (!empty($product)) {
             try {
                 $product->delete();

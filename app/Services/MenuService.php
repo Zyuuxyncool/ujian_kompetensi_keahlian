@@ -25,7 +25,7 @@ class MenuService
         ['route' => 'buyer.seller.index', 'caption' => 'Seller Centre', 'icon' => 'ki-shop', 'focus' => true],
     ];
 
-    protected static array $seller = [];
+    protected static array $seller = [        ['route' => 'admin.dashboard', 'caption' => 'Dashboard'],];
     protected static array $shipper = [];
     protected static array $shipper_sub = [];
     protected static array $courier = [];

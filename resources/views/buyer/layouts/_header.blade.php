@@ -45,7 +45,7 @@
             {{-- </div> --}}
             @guest
                 <a href="{{ route('login') }}"
-                    class="btn btn-outline btn-active-success border-success btn-sm fs-6 px-6 py-2"
+                    class="btn btn-outline btn-actiwebve-success border-success btn-sm fs-6 px-6 py-2"
                     style="border-width: 2px">
                     Login / Register
                 </a>

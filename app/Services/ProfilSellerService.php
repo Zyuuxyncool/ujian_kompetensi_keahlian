@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ProfilSeller;
+use Illuminate\Support\Str;
 
 class ProfilSellerService extends Service
 {
@@ -21,6 +22,7 @@ class ProfilSellerService extends Service
 
     public function store($params)
     {
+        $params['uuid'] = Str::uuid();
         return ProfilSeller::create($params);
     }
 

@@ -14,7 +14,7 @@ class SubCategoryService extends Service
 
         $category_id = $params['category_id'] ?? '';
         if ($category_id !== '') $category_sub = $category_sub->whereHas('category', fn($list_cetegory) => $list_cetegory->where('id', $category_id));
-        
+
         $category_sub = $this->searchFilter($params, $category_sub, ['name']);
         return $this->searchResponse($params, $category_sub);
     }
@@ -53,5 +53,10 @@ class SubCategoryService extends Service
     public function list_category()
     {
         return Category::orderBy('name', 'asc')->pluck('name', 'id')->toArray();
+    }
+
+    public function list()
+    {
+        return SubCategory::orderBy('name')->pluck('name', 'id')->toArray();
     }
 }

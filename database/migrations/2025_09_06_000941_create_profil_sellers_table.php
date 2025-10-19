@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->string('nik');
             $table->string('nama');
+            $table->string('nama_toko')->nullable();
             $table->string('notlp')->nullable();
             $table->string('alamat')->nullable();
             $table->string('provinsi')->nullable();

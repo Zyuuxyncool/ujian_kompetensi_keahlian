@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
 use App\Services\CategoryService;
+use App\Services\ProfilBuyerService;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
-    protected $categoryService;
+    protected $categoryService, $profilBuyerService;
     public function __construct()
     {
+        $this->profilBuyerService = new ProfilBuyerService();
         $this->categoryService = new CategoryService();
     }
     public function index(Request $request)
     {
         $category = $this->categoryService->search($request->all());
-
         return view('buyer.landing.index', compact('category'));
     }
 

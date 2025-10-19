@@ -1,61 +1,81 @@
 @extends('buyer.layouts.index')
 
 @section('title')
-    Profil -
-@endsection
-
-@section('body-class')
-    bg-light-secondary
+    Informasi Toko -
 @endsection
 
 @section('content')
-    <section class="container py-20">
-        <div class="d-flex flex-row align-items-stretch gap-4">
-            <div class="bg-success w-7px rounded-top rounded-bottom">&nbsp;</div>
-            <h2 class="fs-2x m-0 my-1">Profil {{ $profil->nama }}</h2>
+    <div class="container py-10">
+        {{-- HEADER DAN TOMBOL SIMPAN (SAMA) --}}
+        <div class="d-flex justify-content-between align-items-center mb-6">
+            {{-- PERBAIKAN 1: Tambahkan route ke halaman Verifikasi Data Diri (Langkah 1) --}}
+            <a href="{{ route('buyer.seller.verify') }}" class="text-dark fs-3 fw-bold">
+                <i class="fas fa-arrow-left me-2"></i> {{-- Ikon kembali --}}
+            </a>
+            <h1 class="fs-2 fw-bold m-0">Informasi Toko</h1>
+            <button class="btn btn-sm btn-link text-danger fw-bold">Simpan</button>
         </div>
 
-        <form action="{{ route('buyer.profil.update') }}" method="post" enctype="multipart/form-data">
-            @csrf
-            <div class="card border-0 shadow-sm mt-6">
-                <div class="card-body">
-                    <div class="d-flex flex-row gap-6">
-                        <div class="flex-grow-1">
-                            <input type="hidden" name="latitude" id="input_latitude" value="{{ $profil->latitude ?? '' }}">
-                            <input type="hidden" name="longitude" id="input_longitude"
-                                value="{{ $profil->longitude ?? '' }}">
-                            <x-metronic-input name="nama" caption="Nama" :value="$profil->nama ?? ''" />
-                            <x-metronic-select name="jenis_kelamin" caption="Jenis Kelamin" :options="gender()"
-                                :value="$profil->jenis_kelamin ?? ''" />
-                            <x-metronic-input name="tanggal_lahir" caption="Tanggal Lahir" class="datepicker"
-                                :value="format_date($profil->tanggal_lahir ?? '')" />
-                            <x-metronic-input name="notelp" caption="No.Telp/Whatsapp" class="only-numeric"
-                                :value="$profil->notelp ?? ''" />
-                            <x-metronic-textarea name="alamat" caption="Alamat Lengkap" :value="$profil->alamat ?? ''" />
-                            <x-metronic-select name="provinsi" caption="Provinsi" :value="$profil->provinsi ?? ''" />
-                            <x-metronic-select name="kabupaten" caption="Kabupaten" :value="$profil->kabupaten ?? ''" />
-                            <x-metronic-select name="kecamatan" caption="Kecamatan" :value="$profil->kecamatan ?? ''" />
-                            <x-metronic-select name="desa" caption="Desa" :value="$profil->desa ?? ''" />
-                            <x-metronic-input name="email" caption="Email" :value="$profil->user->email ?? ''" />
-                        </div>
-                        <div class="w-lg-200px w-100">
-                            <div class="alert alert-danger d-flex align-items-center p-5 mt-5 d-none w-100"
-                                @error('file_foto') style="display: block!important;" @enderror id="file_foto_error">
-                                <div class="d-flex flex-column align-items-start" id="file_foto_error_content">
-                                    @error('file_foto')
-                                        <span>{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="d-none"><x-input type="file" name="file_foto" alert="0" /><x-input
-                                    name="delete_foto" alert="0" /></div>
-                            <img src="{{ $profil->photo ? Storage::url($profil->photo) : asset('images/user_menubar.jpg') }}"
-                                id="preview_foto" alt="Foto Profil"
-                                class="w-100 h-auto object-fit-cover shadow-xs rounded-1" />
-                            <button class="btn btn-secondary btn-sm py-4 fs-8 mt-3 w-100" type="button"
-                                onclick="open_file('file_foto', 'preview_foto')">Ubah Foto (jpg/png/jpeg)</button>
-                        </div>
+        {{-- NAVIGATION STEPPER (SAMA) --}}
+        <div class="d-flex justify-content-between align-items-center mb-10">
+            <div class="text-center">
+                <span class="d-inline-block bg-success rounded-circle" style="width:10px;height:10px;"></span>
+                <div class="text-success fw-bold mt-2">Verifikasi Data Diri</div>
+            </div>
+            <div class="text-center">
+                <span class="d-inline-block bg-success rounded-circle" style="width:10px;height:10px;"></span>
+                <div class="text-success fw-bold mt-2">Informasi Toko</div>
+            </div>
+            <div class="text-center">
+                <span class="d-inline-block bg-secondary rounded-circle" style="width:10px;height:10px;"></span>
+                <div class="text-gray-400 fw-bold mt-2">Upload Produk</div>
+            </div>
+        </div>
+
+        {{-- CARD FORM CONTENT --}}
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-8">
+                <form action="{{ route('buyer.seller.informasi_toko.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" id="input_latitude" name="latitude" value="{{ $profil->latitude ?? '' }}">
+                    <input type="hidden" id="input_longitude" name="longitude" value="{{ $profil->longitude ?? '' }}">
+
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Nama Toko <span class="text-danger">*</span></label>
+                        <x-input name="nama_toko" caption="Nama Toko" :value="$profil->nama_toko ?? ''" />
                     </div>
+
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Nomer Telepon</label>
+                        <x-input name="no_telp" caption="No Telp" :value="$profil->notlp ?? ''" />
+                    </div>
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Alamat Lengkap</label>
+                        <x-textarea name="alamat" caption="Alamat Lengkap" :value="$profil->alamat ?? ''" />
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Provinsi</label>
+                        <x-select name="provinsi" caption="Provinsi" :value="$profil->provinsi ?? ''" />
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Kota/Kabupaten</label>
+                        <x-select name="kabupaten" caption="Kabupaten" :value="$profil->kabupaten ?? ''" />
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Kecamatan</label>
+                        <x-select name="kecamatan" caption="Kecamatan" :value="$profil->kecamatan ?? ''" />
+                    </div>
+                    <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Kelurahan/Desa</label>
+                        <x-select name="desa" caption="Desa" :value="$profil->desa ?? ''" />
+                    </div>
+                    @error('latitude')
+                        <div class="alert alert-danger mb-3">{{ $message }}</div>
+                    @enderror
+
                     <div class="position-relative mt-6">
                         @if ($profil->latitude && $profil->longitude)
                             <iframe id="map_iframe"
@@ -82,13 +102,14 @@
                             <i class="fas fa-location-arrow me-2"></i> Dapatkan Lokasi Saya
                         </button>
                     </div>
-                </div>
-                <div class="card-footer d-flex justify-content-end py-6">
-                    <button type="submit" class="btn btn-success">Simpan Profil</button>
-                </div>
+                    <div class="d-flex justify-content-between pt-6 border-top">
+                        <a href="{{ route('buyer.seller.verify') }}" class="btn btn-secondary px-8">Kembali</a>
+                        <button type="submit" class="btn btn-success px-8">Lanjut</button>
+                    </div>
+                </form>
             </div>
-        </form>
-    </section>
+        </div>
+    </div>
 @endsection
 @push('scripts')
     <script>

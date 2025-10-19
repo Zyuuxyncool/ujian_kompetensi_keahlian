@@ -9,11 +9,12 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
             $table->integer('stock')->default(0);
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sub_category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('brand_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

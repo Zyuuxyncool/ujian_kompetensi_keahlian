@@ -9,6 +9,7 @@ class Product extends Model
 {
     protected $table = 'products';
     protected $fillable = [
+        'uuid',
         'name',
         'description',
         'price',
@@ -30,5 +31,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
     }
 }

@@ -11,7 +11,7 @@ class BrandService extends Service
     {
         $brand = Brand::orderBy('id');
 
-        $brand = $this->searchFilter($params, $brand, []);
+        $brand = $this->searchFilter($params, $brand, ['name']);
         return $this->searchResponse($params, $brand);
     }
 
@@ -44,5 +44,10 @@ class BrandService extends Service
                 return ['error' => 'Delete user failed! This user currently being used'];
             }
         }
+    }
+
+    public function list()
+    {
+        return Brand::orderBy('name')->pluck('name', 'id')->toArray();
     }
 }

@@ -23,6 +23,7 @@ class ProfilSeller extends Model
         'photo',
         'nik',
         'nama',
+        'nama_toko',
         'notlp',
         'alamat',
         'provinsi',

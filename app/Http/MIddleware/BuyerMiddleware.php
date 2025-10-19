@@ -13,20 +13,42 @@ class BuyerMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth()->user() ?? [];
-        if ($request->method() === 'GET') {
+
+        if ($request->isMethod('get')) {
             $menuService = new MenuService();
-            $menus = $menuService->list_menu('Nusantara');
+            $currentRoute = $request->route()->getName();
 
-            $active_role = session('active_role', $user->akses->akses ?? '');
-            if (!empty($user->buyer)) $user_menus = $menuService->list_menu('Buyer');
-            else if (!empty($user->seller)) $user_menus = $menuService->list_menu('Seller');
-            else $user_menus = $menuService->list_menu($active_role);
+            $currentRouteParams = $request->query() ?? [];
+            if (!is_array($currentRouteParams)) {
+                $currentRouteParams = [];
+            }
 
-            view()->share(['menus' => $menus, 'user_menus' => $user_menus]);
-            $current_route = $request->route()->getName();
-            $current_route_params = $request->query();
-            view()->share($menuService::current_menu($menus, $current_route, 'Buyer', $current_route_params));
+            if (str_starts_with($currentRoute, 'seller.')) {
+                $activeRole = 'Seller';
+                $menusForView = $menuService->list_menu('Seller');
+                $userMenus = $menusForView;
+            } else {
+                $activeRole = session('active_role', $user->akses->akses ?? '');
+                $menusForView = $menuService->list_menu('Buyer');
+
+                if (!empty($user->seller)) {
+                    $menusForView = array_merge($menusForView, $menuService->list_menu('Seller'));
+                }
+
+                $userMenus = $menuService->list_menu('Buyer');
+            }
+
+            view()->share([
+                'menus' => $menusForView,
+                'user_menus' => $userMenus,
+                'active_role' => $activeRole
+            ]);
+
+            view()->share(
+                $menuService::current_menu($menusForView, $currentRoute, $activeRole, $currentRouteParams)
+            );
         }
+
         return $next($request);
     }
 }

@@ -5,31 +5,200 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use App\Services\ProfilSellerService;
+use App\Services\ProductService;
+use App\Services\ProductImageService;
+use App\Services\DocumentService;
+use App\Services\BrandService;
+use App\Services\SubCategoryService;
 use Illuminate\Support\Facades\Auth;
 
 class SellerController extends Controller
 {
-    protected $userService;
+    protected $userService, $profilSellerService, $productService, $productImageService, $brandService, $subCategoryService;
+
     public function __construct()
     {
+        $this->productImageService = new ProductImageService();
+        $this->profilSellerService = new ProfilSellerService();
         $this->userService = new UserService();
+        $this->productService = new ProductService();
+        $this->brandService = new BrandService();
+        $this->subCategoryService = new SubCategoryService();
+        view()->share(['list_brands' => $this->brandService->list(), 'list_sub_categories' => $this->subCategoryService->list(),]);
     }
 
     public function index()
     {
         $user = Auth()->user();
-
-        // Jika user sudah punya profil seller → arahkan ke dashboard seller
         if ($user->seller) {
             return redirect()->route('seller.dashboard.index');
         }
-
-        // Jika belum punya profil seller → tampilkan halaman aktivasi seller
         return view('buyer.seller.index');
     }
 
-    public function verify(Request $request)
+    public function verify()
     {
-        return view('buyer.seller.verify');
+        $user = Auth()->user();
+        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        return view('buyer.seller.verify', compact('profil'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'jenis_usaha' => 'required|in:1,2',
+            'nama' => 'required|string|max:255',
+            'nik' => 'required|numeric|digits:16',
+        ]);
+        $user = Auth()->user();
+        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        if ($profil) {
+            $this->profilSellerService->update($profil->id, [
+                'jenis_usaha' => $request->jenis_usaha,
+                'nama' => $request->nama,
+                'nik' => $request->nik,
+                'nama_toko' => '',
+            ]);
+        } else {
+            $this->profilSellerService->store([
+                'user_id' => $user->id,
+                'jenis_usaha' => $request->jenis_usaha,
+                'nama' => $request->nama,
+                'nik' => $request->nik,
+                'nama_toko' => '',
+            ]);
+        }
+
+        return redirect()->route('buyer.seller.informasi_toko')
+            ->with('success', 'Verifikasi berhasil disimpan!');
+    }
+
+    public function informasiToko()
+    {
+        $user = Auth()->user();
+        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        return view('buyer.seller.informasi_toko', compact('profil'));
+    }
+
+    public function storeInformasiToko(Request $request)
+    {
+        $user = Auth()->user();
+
+        $request->validate([
+            'nama_toko'   => 'required|string|max:100',
+            'no_telp'     => 'nullable|string|max:20',
+            'alamat'      => 'required|string|max:255',
+            'provinsi'    => 'required|string|max:100',
+            'kabupaten'   => 'required|string|max:100',
+            'kecamatan'   => 'required|string|max:100',
+            'desa'        => 'required|string|max:100',
+            'latitude'    => 'required|numeric',
+            'longitude'   => 'required|numeric',
+        ], [
+            'nama_toko.required'  => 'Nama toko wajib diisi.',
+            'alamat.required'     => 'Alamat lengkap wajib diisi.',
+            'provinsi.required'   => 'Provinsi wajib dipilih.',
+            'kabupaten.required'  => 'Kabupaten wajib dipilih.',
+            'kecamatan.required'  => 'Kecamatan wajib dipilih.',
+            'desa.required'       => 'Desa wajib dipilih.',
+            'latitude.required'   => 'Lokasi belum ditemukan, silakan gunakan tombol "Dapatkan Lokasi Saya".',
+            'longitude.required'  => 'Lokasi belum ditemukan, silakan gunakan tombol "Dapatkan Lokasi Saya".',
+        ]);
+
+        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+
+        if ($profil) {
+            $this->profilSellerService->update($profil->id, [
+                'user_id'    => $user->id,
+                'nama_toko'  => $request->nama_toko,
+                'notlp'    => $request->no_telp,
+                'alamat'     => $request->alamat,
+                'provinsi'   => $request->provinsi,
+                'kabupaten'  => $request->kabupaten,
+                'kecamatan'  => $request->kecamatan,
+                'desa'       => $request->desa,
+                'latitude'   => $request->latitude,
+                'longitude'  => $request->longitude,
+            ]);
+        } else {
+            $this->profilSellerService->store([
+                'user_id'    => $user->id,
+                'nama_toko'  => $request->nama_toko,
+                'notlp'    => $request->no_telp,
+                'alamat'     => $request->alamat,
+                'provinsi'   => $request->provinsi,
+                'kabupaten'  => $request->kabupaten,
+                'kecamatan'  => $request->kecamatan,
+                'desa'       => $request->desa,
+                'latitude'   => $request->latitude,
+                'longitude'  => $request->longitude,
+            ]);
+        }
+
+        return redirect()->route('buyer.seller.upload_produk')
+            ->with('success', 'Informasi toko berhasil disimpan! Lanjut ke Upload Produk.');
+    }
+
+    // === LANGKAH 3: UPLOAD PRODUK ===
+    public function uploadProduk()
+    {
+        $user = Auth()->user();
+
+        // Ambil profil seller dulu
+        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+
+        // Cek apakah informasi toko sudah lengkap
+        if (!$profil || !$profil->nama_toko) {
+            return redirect()->route('buyer.seller.informasi_toko')
+                ->with('error', 'Lengkapi informasi toko terlebih dahulu sebelum mengupload produk.');
+        }
+
+        // Ambil semua produk milik user ini (optional)
+        $produkList = $this->productService->search(['user_id' => $user->id]);
+
+        return view('buyer.seller.upload_produk', compact('profil', 'produkList'));
+    }
+
+    public function storeUploadProduk(Request $request)
+    {
+        $user = Auth()->user();
+
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:1',
+            'sub_category_id' => 'nullable|integer|exists:sub_categories,id',
+            'brand_id'        => 'nullable|integer|exists:brands,id',
+            'photos.*'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // validasi foto
+        ], [
+            'name.required'  => 'Nama produk wajib diisi.',
+            'price.required' => 'Harga produk wajib diisi.',
+            'stock.required' => 'Stok produk wajib diisi.',
+            'photos.*.image' => 'File harus berupa gambar.',
+        ]);
+
+        $product = $this->productService->store([
+            'name'            => $request->name,
+            'description'     => $request->description,
+            'price'           => $request->price,
+            'stock'           => $request->stock,
+            'sub_category_id' => $request->sub_category_id,
+            'brand_id'        => $request->brand_id,
+        ]);
+
+        if ($request->hasFile('photos')) {
+            $files = DocumentService::save_multiple_file($request, 'photos', 'uploads/products');
+            foreach ($files as $path) {
+                $this->productImageService->store([
+                    'product_id' => $product->id,
+                    'photo' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('seller.dashboard.index')
+            ->with('success', 'Produk dan foto berhasil ditambahkan!');
     }
 }

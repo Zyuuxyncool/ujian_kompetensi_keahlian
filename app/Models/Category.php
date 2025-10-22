@@ -12,7 +12,6 @@ class Category extends Model
         'uuid',
         'name',
         'photo',
-        'parent_id'
     ];
 
     public function subCategories()

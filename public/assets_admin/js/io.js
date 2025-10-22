@@ -81,6 +81,7 @@ let init_form_element = () => {
         .attr('data-a-sep', '.')
         .attr('data-a-dec',',')
         .autoNumeric({mDec: '0', vMax:'9999999999999999999999999', vMin: '-99999999999999999'});
+        unformatOnSubmit: true
     $('.autonumeric-decimal')
         .attr('data-a-sep', '.')
         .attr('data-a-dec', ',')

@@ -71,7 +71,7 @@ function paginate_options()
 
 function gender()
 {
-    return ['L' => 'Laki - Laki', 'P' => 'Permepuan'];
+    return ['L' => 'Laki - Laki', 'P' => 'Perempuan'];
 }
 
 function religion()

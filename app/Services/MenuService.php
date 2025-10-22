@@ -25,14 +25,22 @@ class MenuService
         ['route' => 'buyer.seller.index', 'caption' => 'Seller Centre', 'icon' => 'ki-shop', 'focus' => true],
     ];
 
-    protected static array $seller = [        ['route' => 'admin.dashboard', 'caption' => 'Dashboard'],];
+    protected static array $seller = [
+        ['route' => 'seller.dashboard.index', 'caption' => 'Dashboard'],
+        'toko' => ['route' => '#', 'caption' => 'Toko', 'sub_menus' => [
+            ['route' => 'seller.profil.index', 'caption' => 'Profil Toko'],
+        ]],
+        ['route' => 'seller.products.index', 'caption' => 'Produk'],
+        'pendapatan' => ['route' => '#', 'caption' => 'Pengiriman', 'sub_menus' => [
+            ['route' => 'seller.pendapatan_seller.index', 'caption' => 'Profil Toko'],
+        ]],
+
+        ['route' => 'seller.pesanan.index', 'caption' => 'Pesanan'],
+        ['route' => 'seller.keuangan.index', 'caption' => 'Keuangan'],
+    ];
     protected static array $shipper = [];
     protected static array $shipper_sub = [];
     protected static array $courier = [];
-    protected static array $nusantara = [
-        ['route' => 'buyer.profil.index', 'caption' => 'Profil', 'icon' => 'ki-user', 'focus' => true],
-        ['route' => 'buyer.landing', 'caption' => 'Landing'],
-    ];
 
     public function list_menu($role): array
     {
@@ -43,7 +51,6 @@ class MenuService
             "Shipper" => self::$shipper,
             "Shipper Sub" => self::$shipper_sub,
             "Courier" => self::$courier,
-            "Nusantara" => self::$nusantara,
             default => [],
         };
     }

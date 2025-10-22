@@ -17,9 +17,11 @@
             </div>
             <div class="d-flex align-items-stretch flex-shrink-0">
                 {{--                @include('layouts._notification') --}}
-                @include('admin.layouts._roles')
-                @include('admin.layouts._switcher')
-                @include('admin.layouts._user')
+                @auth
+                    @include('admin.layouts._roles')
+                    @include('admin.layouts._switcher')
+                    @include('admin.layouts._user')
+                @endauth
                 <div class="d-flex d-lg-none align-items-center" title="Show header menu">
                     <button class="btn btn-icon btn-active-light-primary w-30px h-30px w-md-40px h-md-40px"
                         id="kt_header_menu_mobile_toggle">

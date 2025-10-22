@@ -51,4 +51,9 @@ class ProfilSeller extends Model
     {
         return self::FLAG[$this->flag] ?? '-';
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'profil_id', 'id');
+    }
 }

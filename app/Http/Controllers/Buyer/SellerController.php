@@ -40,19 +40,15 @@ class SellerController extends Controller
     public function verify()
     {
         $user = Auth()->user();
-        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
         return view('buyer.seller.verify', compact('profil'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis_usaha' => 'required|in:1,2',
-            'nama' => 'required|string|max:255',
-            'nik' => 'required|numeric|digits:16',
-        ]);
         $user = Auth()->user();
-        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
+
         if ($profil) {
             $this->profilSellerService->update($profil->id, [
                 'jenis_usaha' => $request->jenis_usaha,
@@ -77,7 +73,7 @@ class SellerController extends Controller
     public function informasiToko()
     {
         $user = Auth()->user();
-        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
         return view('buyer.seller.informasi_toko', compact('profil'));
     }
 
@@ -106,7 +102,7 @@ class SellerController extends Controller
             'longitude.required'  => 'Lokasi belum ditemukan, silakan gunakan tombol "Dapatkan Lokasi Saya".',
         ]);
 
-        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
 
         if ($profil) {
             $this->profilSellerService->update($profil->id, [
@@ -140,29 +136,26 @@ class SellerController extends Controller
             ->with('success', 'Informasi toko berhasil disimpan! Lanjut ke Upload Produk.');
     }
 
-    // === LANGKAH 3: UPLOAD PRODUK ===
     public function uploadProduk()
     {
         $user = Auth()->user();
-
-        // Ambil profil seller dulu
-        $profil = $this->profilSellerService->search(['user_id' => $user->id])->first();
-
-        // Cek apakah informasi toko sudah lengkap
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
         if (!$profil || !$profil->nama_toko) {
             return redirect()->route('buyer.seller.informasi_toko')
                 ->with('error', 'Lengkapi informasi toko terlebih dahulu sebelum mengupload produk.');
         }
-
-        // Ambil semua produk milik user ini (optional)
-        $produkList = $this->productService->search(['user_id' => $user->id]);
-
+        $produkList = $this->productService->search(['profil_id' => $profil->id]);
         return view('buyer.seller.upload_produk', compact('profil', 'produkList'));
     }
 
     public function storeUploadProduk(Request $request)
     {
         $user = Auth()->user();
+        $profil = $this->profilSellerService->find($user->id, 'user_id');
+        if (!$profil) {
+            return redirect()->route('buyer.seller.informasi_toko')
+                ->with('error', 'Profil seller tidak ditemukan. Lengkapi informasi toko terlebih dahulu.');
+        }
 
         $request->validate([
             'name'        => 'required|string|max:255',
@@ -171,25 +164,27 @@ class SellerController extends Controller
             'stock'       => 'required|integer|min:1',
             'sub_category_id' => 'nullable|integer|exists:sub_categories,id',
             'brand_id'        => 'nullable|integer|exists:brands,id',
-            'photos.*'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // validasi foto
+            'images.*'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ], [
             'name.required'  => 'Nama produk wajib diisi.',
             'price.required' => 'Harga produk wajib diisi.',
             'stock.required' => 'Stok produk wajib diisi.',
-            'photos.*.image' => 'File harus berupa gambar.',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        $price = str_replace(['.', ','], ['', '.'], $request->price);
         $product = $this->productService->store([
+            'profil_id'       => $profil->id,
             'name'            => $request->name,
             'description'     => $request->description,
-            'price'           => $request->price,
+            'price'           => $price,
             'stock'           => $request->stock,
             'sub_category_id' => $request->sub_category_id,
             'brand_id'        => $request->brand_id,
         ]);
 
-        if ($request->hasFile('photos')) {
-            $files = DocumentService::save_multiple_file($request, 'photos', 'uploads/products');
+        if ($request->hasFile('images')) {
+            $files = DocumentService::save_multiple_file($request, 'images', 'public/products');
             foreach ($files as $path) {
                 $this->productImageService->store([
                     'product_id' => $product->id,

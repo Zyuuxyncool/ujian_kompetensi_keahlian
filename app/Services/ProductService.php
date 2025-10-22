@@ -11,7 +11,7 @@ class ProductService extends Service
     {
         $product = Product::orderBy('id');
 
-        $product = $this->searchFilter($params, $product, []);
+        $product = $this->searchFilter($params, $product, ['profil_id', 'name']);
         return $this->searchResponse($params, $product);
     }
 

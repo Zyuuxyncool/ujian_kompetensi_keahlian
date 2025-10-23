@@ -10,7 +10,14 @@ class ProductService extends Service
     public function search($params = [])
     {
         $product = Product::orderBy('id');
-
+        if (isset($params['q']) && $params['q'] !== '') {
+            $query = $params['q'];
+            $product = $product->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%");
+            });
+            unset($params['q']);
+        }
         $product = $this->searchFilter($params, $product, ['profil_id', 'name']);
         return $this->searchResponse($params, $product);
     }
@@ -45,5 +52,16 @@ class ProductService extends Service
             }
         }
         return $product;
+    }
+
+    public function autocompleteSearch(string $query)
+    {
+        // Cari produk yang namanya mengandung $query
+        return Product::where('name', 'LIKE', "%{$query}%")
+            // Ambil hanya kolom 'id' dan 'name'
+            ->select('id', 'name')
+            // Batasi hasilnya
+            ->limit(10)
+            ->get();
     }
 }

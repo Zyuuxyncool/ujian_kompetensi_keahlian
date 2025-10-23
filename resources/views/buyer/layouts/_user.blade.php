@@ -12,10 +12,10 @@
         <div class="btn btn-active-light d-flex align-items-center bg-hover-light py-2 px-2 px-md-3"
             data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent"
             data-kt-menu-placement="bottom-end">
-            <div class="d-none d-md-flex flex-column align-items-end justify-content-center me-2">
+            {{-- <div class="d-none d-md-flex flex-column align-items-end justify-content-center me-2">
                 <span class="text-dark fs-base fw-bold lh-1">{{ $user->name }}</span>
                 <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">{{ $user->email }}</a>
-            </div>
+            </div> --}}
             <div class="symbol symbol-40px symbol-md-40px ms-3">
                 <img src="{{ $foto == '' ? asset('images/user_menubar.jpg') : Storage::url($user->buyer->photo) }}"
                     alt="image" />

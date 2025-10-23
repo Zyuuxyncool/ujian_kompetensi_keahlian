@@ -44,4 +44,9 @@ class ProfilBuyer extends Model
         $today = new \DateTime();
         return $today->diff($dob)->y;
     }
+
+    public function followings()
+    {
+        return $this->belongsToMany(ProfilSeller::class,'buyer_seller_followers','buyer_id','seller_id')->withTimestamps();
+    }
 }

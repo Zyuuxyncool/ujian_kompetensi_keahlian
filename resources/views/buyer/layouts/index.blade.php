@@ -16,8 +16,40 @@
     <link href="{{ asset('assets_admin/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets_landing/css/landing.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets_admin/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link href="{{ asset('assets_admin/css/custom.css') }}" rel="stylesheet" type="text/css" />
     <style>
+        /* PERBAIKAN Z-INDEX UNTUK AUTOCOMPLETE */
+        /* Z-index 1060, di atas header (1050) dan modal (1055) */
+        .ui-autocomplete {
+            z-index: 1060 !important;
+            max-height: 250px;
+            overflow-y: auto;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            border: 1px solid #4CAF50;
+            background-color: #fff;
+        }
+
+        /* Styling untuk item di daftar saran */
+        .ui-menu-item-wrapper {
+            padding: 0.5rem 1rem;
+            color: #333;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .ui-state-active,
+        .ui-menu-item:hover {
+            background-color: #f0f0f0 !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+
+        /* AKHIR PERBAIKAN Z-INDEX */
+
+
         /* === Sticky Header === */
         #kt_header {
             position: fixed;
@@ -33,8 +65,17 @@
 
         /* Rapikan spacing */
         .header .container-fluid {
-            padding-left: 2rem;
-            padding-right: 2rem;
+            padding-left: 1rem;
+            /* Kurangi padding di mobile */
+            padding-right: 1rem;
+            /* Kurangi padding di mobile */
+        }
+
+        @media (min-width: 992px) {
+            .header .container-fluid {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
         }
 
         /* Search bar hover */
@@ -49,16 +90,10 @@
             background: #fff;
         }
 
-        /* Text rapi di tengah vertikal */
-        .header-title {
-            display: flex;
-            align-items: center;
-            font-size: 1.5rem;
-        }
-
+        /* Hapus padding-top fix yang sebelumnya ada, digantikan dynamic JS */
         body {
             margin: 0;
-            padding-top: 76px;
+            /* padding-top akan diatur oleh JavaScript */
         }
 
         /* === Warna utama Nusantara === */
@@ -285,7 +320,7 @@
 
         }
 
-        /* === Footer Nusantara === */
+        /* === Footer Nusantara (CSS yang dikembalikan) === */
         .footer-nusantara {
             background-color: #111;
             /* hitam elegan */
@@ -344,8 +379,29 @@
             transition: all 0.3s ease;
         }
 
+        .footer-social:hover {
+            background: #0FA061;
+            color: #fff;
+        }
+
         .footer-bottom {
             border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* === FIX MODAL FULL SCREEN MOBILE === */
+        #mobileSearchModal .modal-dialog {
+            /* Pastikan tidak ada margin yang mengganggu full screen */
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #mobileSearchModal .modal-content {
+            /* Paksa tinggi 100% dari viewport height */
+            height: 100vh !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+            /* Pastikan latar belakang solid putih untuk menutupi konten bawah */
+            background-color: #fff !important;
         }
     </style>
     @stack('styles')
@@ -355,12 +411,76 @@
 
     <div class="d-flex flex-column flex-root">
         <div class="page d-flex flex-column flex-column-fluid">
-            @include('buyer.layouts._header')
+
+            {{-- HEADER CONTENT (dari _header.blade.php) --}}
+            <div id="kt_header" class="header border-bottom-0 shadow-sm">
+                <div class="container-fluid d-flex align-items-center justify-content-between py-3">
+
+                    {{-- === Logo / Brand === --}}
+                    <div class="d-flex align-items-center gap-3">
+                        @if (count($current_side_menu ?? []) > 0)
+                            <button class="btn btn-icon btn-active-icon-primary d-lg-none" id="kt_aside_toggle">
+                                <i class="ki-duotone ki-abstract-14 fs-2">
+                                    <span class="path1"></span><span class="path2"></span>
+                                </i>
+                            </button>
+                        @endif
+                        <a href="{{ url('/buyer/landing') }}" class="text-decoration-none">
+                            <h1 class="header-title mb-0">Nusantara <span class="text-siap">Store</span></h1>
+                        </a>
+                    </div>
+
+                    {{-- === Search Bar (Tengah Desktop Fix: d-none di mobile, d-lg-flex di desktop) === --}}
+                    <div class="d-none d-lg-flex flex-grow-1 justify-content-center mx-auto flex-shrink-0"
+                        style="max-width: 550px;">
+                        {{-- FORM PENCARIAN DESKTOP (Action diubah ke route hasil pencarian) --}}
+                        <form action="{{ route('search.results') }}" method="GET" class="w-100">
+                            <div
+                                class="input-group nusantara-search rounded-pill overflow-hidden border border-success shadow-elevated">
+                                <input type="text" name="q" class="form-control border-0 ps-4 py-2"
+                                    id="search_input" placeholder="Cari produk, toko, atau kategori..."
+                                    aria-label="Search" required>
+                                <button type="submit"
+                                    class="btn btn-nusantara-icon d-flex align-items-center justify-content-center px-4"
+                                    style="background-color: #4CAF50;">
+                                    <i class="fa fa-search fs-5 text-white"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {{-- === Menu kanan (Mobile Search Icon, Notif, Cart, User, Login) === --}}
+                    <div class="d-flex align-items-center gap-2 gap-md-4 flex-shrink-0 flex-nowrap">
+
+                        {{-- TOMBOL SEARCH MOBILE (Hanya muncul di mobile) --}}
+                        <button class="btn btn-icon btn-active-light-success d-lg-none" data-bs-toggle="modal"
+                            data-bs-target="#mobileSearchModal" title="Cari Produk">
+                            <i class="fa fa-search fs-3 text-success"></i>
+                        </button>
+
+                        @guest
+                            <a href="{{ route('login') }}"
+                                class="btn btn-outline btn-actiwebve-success border-success btn-sm fs-6 px-6 py-2"
+                                style="border-width: 2px">
+                                Login / Register
+                            </a>
+                        @endguest
+
+                        @auth
+                            @include('buyer.layouts._cart')
+                            @include('buyer.layouts._notification')
+                            @include('buyer.layouts._user')
+                        @endauth
+                    </div>
+                </div>
+            </div>
+            {{-- END HEADER CONTENT --}}
 
             <div id="kt_content_container" class="d-flex flex-column-fluid align-items-stretch">
                 <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
                     @yield('content')
 
+                    {{-- === FOOTER NUSANTARA (HTML yang dikembalikan) === --}}
                     <footer class="footer-nusantara mt-20">
                         <div class="container py-14">
                             <div class="row g-10 justify-content-between align-items-start">
@@ -402,7 +522,8 @@
                                     <div class="d-flex gap-3 mt-3">
                                         <a href="#" class="footer-social"><i class="fab fa-facebook-f"></i></a>
                                         <a href="#" class="footer-social"><i class="fab fa-instagram"></i></a>
-                                        <a href="#" class="footer-social"><i class="fab fa-linkedin-in"></i></a>
+                                        <a href="#" class="footer-social"><i
+                                                class="fab fa-linkedin-in"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -417,6 +538,40 @@
                     </footer>
 
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MOBILE SEARCH MODAL (Full-screen for better UX) --}}
+    <div class="modal fade" id="mobileSearchModal" tabindex="-1" aria-labelledby="mobileSearchModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0 px-5">
+                    <h3 class="fw-bold text-center text-siap mb-6">Cari di Nusantara Store</h3>
+                    {{-- FORM PENCARIAN MOBILE (Action diubah ke route hasil pencarian) --}}
+                    <form action="{{ route('search.results') }}" method="GET" class="w-100">
+                        <div
+                            class="input-group nusantara-search rounded-pill overflow-hidden border border-success shadow-elevated mb-5">
+                            <input type="text" name="q" class="form-control border-0 ps-4 py-3 fs-4"
+                                id="mobile_search_input_modal" placeholder="Ketik nama produk atau toko..."
+                                aria-label="Search" required autofocus>
+                            <button type="submit"
+                                class="btn btn-nusantara-icon d-flex align-items-center justify-content-center px-4"
+                                style="background-color: #0FA061;">
+                                <i class="fa fa-search fs-4 text-white"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-8 text-center text-gray-500 fs-7">
+                        <p class="mb-2">Gunakan minimal 3 karakter untuk memulai pencarian.</p>
+                        <p>Tips: Coba cari "kopi gayo" atau "batik pekalongan".</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -442,6 +597,42 @@
     <script src="{{ asset('assets_admin/js/auto-numeric.js') }}"></script>
     <script src="{{ asset('assets_landing/js/landing.js') }}"></script>
     <script src="{{ asset('assets_admin/js/io.js') }}"></script>
+
+    <!-- PENTING: JQuery UI JS harus dimuat sebelum script inisialisasinya -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- SCRIPT LOGIKA AUTOCOMPLETE -->
+    <script>
+        $(function() {
+            const autocompleteOptions = {
+                source: "{{ route('search.autocomplete') }}",
+                minLength: 3,
+                delay: 300,
+                select: function(event, ui) {
+                    // Set nilai input dan submit form
+                    $(this).val(ui.item.value);
+                    // Dapatkan form terdekat
+                    const form = $(this).closest('form');
+
+                    // JIKA menggunakan Autocomplete (klik saran), kita submit formnya
+                    form.submit();
+
+                    // Khusus untuk mobile, tutup modal setelah submit
+                    if ($(this).attr('id') === 'mobile_search_input_modal') {
+                        $('#mobileSearchModal').modal('hide');
+                    }
+                    return false; // Mencegah pemrosesan default
+                }
+            };
+
+            // 1. Inisialisasi fungsi autocomplete pada input desktop
+            $("#search_input").autocomplete(autocompleteOptions);
+
+            // 2. Inisialisasi fungsi autocomplete pada input mobile di dalam modal
+            $("#mobile_search_input_modal").autocomplete(autocompleteOptions);
+        });
+    </script>
+
     <script>
         @if (session()->has('success'))
             swal.fire('{{ session('success') }}');
@@ -452,6 +643,8 @@
                 title: "{{ session('error') }}",
             });
         @endif
+
+        // Efek scroll header
         document.addEventListener('scroll', function() {
             if (window.scrollY > 20) {
                 document.body.classList.add('scrolled');
@@ -459,6 +652,21 @@
                 document.body.classList.remove('scrolled');
             }
         });
+
+        // FUNGSI DINAMIS UNTUK MENGATUR PADDING BODY (Penting untuk sticky header)
+        function updateBodyPadding() {
+            const header = document.getElementById('kt_header');
+            if (header) {
+                // Mengambil tinggi header yang akurat
+                document.body.style.paddingTop = header.getBoundingClientRect().height + 'px';
+            }
+        }
+
+        // Jalankan fungsi saat load, resize, dan setelah sedikit delay
+        window.addEventListener('load', updateBodyPadding);
+        window.addEventListener('resize', updateBodyPadding);
+        document.addEventListener('DOMContentLoaded', updateBodyPadding);
+        setTimeout(updateBodyPadding, 100);
     </script>
     @stack('scripts')
 </body>

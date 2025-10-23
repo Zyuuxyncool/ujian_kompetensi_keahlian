@@ -107,6 +107,7 @@ class SellerController extends Controller
         if ($profil) {
             $this->profilSellerService->update($profil->id, [
                 'user_id'    => $user->id,
+                'username'   => $request->username,
                 'nama_toko'  => $request->nama_toko,
                 'notlp'    => $request->no_telp,
                 'alamat'     => $request->alamat,
@@ -120,6 +121,7 @@ class SellerController extends Controller
         } else {
             $this->profilSellerService->store([
                 'user_id'    => $user->id,
+                'username'   => $request->username,
                 'nama_toko'  => $request->nama_toko,
                 'notlp'    => $request->no_telp,
                 'alamat'     => $request->alamat,

@@ -11,10 +11,12 @@ Route::redirect('/buyer', '/buyer/landing')->name('buyer');
 // Route /buyer/landing publik
 Route::get('/buyer/landing', [App\Http\Controllers\Buyer\LandingController::class, 'index'])->name('buyer.landing');
 Route::get('/buyer/landing/category/{uuid}', [App\Http\Controllers\Buyer\LandingController::class, 'showCategory'])->name('buyer.landing.category.index');
-
+Route::get('/search/autocomplete', [App\Http\Controllers\Buyer\ProductController::class, 'autocomplete'])->name('search.autocomplete');
+Route::get('/search/results', [App\Http\Controllers\Buyer\ProductController::class, 'index'])->name('search.results');
 
 // Group route buyer yang butuh login
 Route::prefix('/buyer')->middleware(['auth'])->name('buyer.')->group(function () {
+    Route::get('/search/autocomplete', [App\Http\Controllers\Buyer\ProductController::class, 'autocomplete'])->name('search.autocomplete');
     Route::get('/profil', [App\Http\Controllers\Buyer\ProfilController::class, 'index'])->name('profil.index');
     Route::post('/profil', [App\Http\Controllers\Buyer\ProfilController::class, 'update'])->name('profil.update');
     Route::get('/seller', [App\Http\Controllers\Buyer\SellerController::class, 'index'])->name('seller.index');

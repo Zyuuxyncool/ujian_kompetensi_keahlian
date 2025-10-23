@@ -41,6 +41,11 @@
                     <input type="hidden" id="input_longitude" name="longitude" value="{{ $profil->longitude ?? '' }}">
 
                     <div class="mb-8">
+                        <label class="form-label fs-5 fw-bold">Username <span class="text-danger">*</span></label>
+                        <x-input name="username" caption="Username" :value="$profil->username ?? ''" />
+                    </div>
+
+                    <div class="mb-8">
                         <label class="form-label fs-5 fw-bold">Nama Toko <span class="text-danger">*</span></label>
                         <x-input name="nama_toko" caption="Nama Toko" :value="$profil->nama_toko ?? ''" />
                     </div>

@@ -56,4 +56,14 @@ class ProfilSellerService extends Service
     {
         return ProfilSeller::FLAG;
     }
+
+    public function searchByName(string $query, int $limit = 5)
+    {
+        // PERBAIKAN: Menggunakan 'nama_toko' dan 'username' sesuai model ProfilSeller
+        return ProfilSeller::where('nama_toko', 'LIKE', "%{$query}%")
+            ->orWhere('username', 'LIKE', "%{$query}%")
+            // Batasi hasilnya
+            ->limit($limit)
+            ->get();
+    }
 }

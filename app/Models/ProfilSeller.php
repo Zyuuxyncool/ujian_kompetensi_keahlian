@@ -23,6 +23,7 @@ class ProfilSeller extends Model
         'photo',
         'nik',
         'nama',
+        'username',
         'nama_toko',
         'notlp',
         'alamat',
@@ -55,5 +56,10 @@ class ProfilSeller extends Model
     public function products()
     {
         return $this->hasMany(Product::class, 'profil_id', 'id');
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(ProfilBuyer::class, 'buyer_seller_followers', 'seller_id', 'buyer_id')->withTimestamps();
     }
 }

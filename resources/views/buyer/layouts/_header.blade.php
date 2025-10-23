@@ -26,7 +26,7 @@
             <form action="" method="GET" style="max-width: 550px;" class="w-100">
                 <div
                     class="input-group nusantara-search rounded-pill overflow-hidden border border-success shadow-elevated">
-                    <input type="text" name="q" class="form-control border-0 ps-4 py-2"
+                    <input type="text" name="q" class="form-control border-0 ps-4 py-2" id="search_input"
                         placeholder="Cari produk, toko, atau kategori..." aria-label="Search" required>
                     <button type="submit"
                         class="btn btn-nusantara-icon d-flex align-items-center justify-content-center px-4"
@@ -41,7 +41,7 @@
         {{-- Kanan: Tetap berukuran alami --}}
         <div class="d-flex align-items-center gap-4 flex-shrink-0">
             {{-- <div class="d-flex align-items-stretch ms-6" id="kt_header_nav"> --}}
-                {{-- @include('admin.layouts._menu') --}}
+            {{-- @include('admin.layouts._menu') --}}
             {{-- </div> --}}
             @guest
                 <a href="{{ route('login') }}"
@@ -68,3 +68,32 @@
 
     </div>
 </div>
+<script>
+    $(function() {
+    // Inisialisasi fungsi autocomplete pada input dengan id 'search_input'
+    $("#search_input").autocomplete({
+        // Gunakan route name yang sudah didefinisikan di Canvas (routes/web.php)
+        source: "{{ route('search.autocomplete') }}", 
+        
+        // Mulai memanggil AJAX setelah 3 karakter diketik
+        minLength: 3,   
+        
+        // Jeda 300ms sebelum request AJAX dikirim (untuk menghindari spam request)
+        delay: 300,     
+        
+        // Handler ketika pengguna memilih saran dari daftar
+        select: function(event, ui) {
+            // 'ui.item' berisi data {id, label, value} dari Controller
+            
+            // Set input dengan nilai yang dipilih
+            $(this).val(ui.item.value);
+            
+            // Kirim form pencarian untuk menampilkan hasil
+            $(this).closest('form').submit(); 
+
+            return false;
+        }
+    });
+});
+
+</script>

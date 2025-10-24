@@ -40,7 +40,7 @@ class ProductController extends Controller
 
     public function searchResults(Request $request)
     {
-        $query = $request->query('q');
+        $query = $request->query('keyword');
 
         if (empty($query)) {
             return redirect()->back()->with('error', 'Silakan masukkan kata kunci pencarian.');

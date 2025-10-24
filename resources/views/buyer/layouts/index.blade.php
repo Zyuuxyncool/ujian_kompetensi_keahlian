@@ -437,7 +437,7 @@
                         <form action="{{ route('search.results') }}" method="GET" class="w-100">
                             <div
                                 class="input-group nusantara-search rounded-pill overflow-hidden border border-success shadow-elevated">
-                                <input type="text" name="q" class="form-control border-0 ps-4 py-2"
+                                <input type="text" name="keyword" class="form-control border-0 ps-4 py-2"
                                     id="search_input" placeholder="Cari produk, toko, atau kategori..."
                                     aria-label="Search" required>
                                 <button type="submit"

@@ -25,7 +25,11 @@ class SellerController extends Controller
         $this->productService = new ProductService();
         $this->brandService = new BrandService();
         $this->subCategoryService = new SubCategoryService();
-        view()->share(['list_brands' => $this->brandService->list(), 'list_sub_categories' => $this->subCategoryService->list(),]);
+
+        view()->share([
+            'list_brands' => $this->brandService->list(),
+            'list_sub_categories' => $this->subCategoryService->list(),
+        ]);
     }
 
     public function index()
@@ -49,21 +53,19 @@ class SellerController extends Controller
         $user = Auth()->user();
         $profil = $this->profilSellerService->find($user->id, 'user_id');
 
+        $data = [
+            'jenis_usaha' => $request->jenis_usaha,
+            'nama' => $request->nama,
+            'nik' => $request->nik,
+            'nama_toko' => '',
+            'flag' => 2, // ✅ Setelah verifikasi diri, ubah flag ke 2
+        ];
+
         if ($profil) {
-            $this->profilSellerService->update($profil->id, [
-                'jenis_usaha' => $request->jenis_usaha,
-                'nama' => $request->nama,
-                'nik' => $request->nik,
-                'nama_toko' => '',
-            ]);
+            $this->profilSellerService->update($profil->id, $data);
         } else {
-            $this->profilSellerService->store([
-                'user_id' => $user->id,
-                'jenis_usaha' => $request->jenis_usaha,
-                'nama' => $request->nama,
-                'nik' => $request->nik,
-                'nama_toko' => '',
-            ]);
+            $data['user_id'] = $user->id;
+            $this->profilSellerService->store($data);
         }
 
         return redirect()->route('buyer.seller.informasi_toko')
@@ -104,34 +106,25 @@ class SellerController extends Controller
 
         $profil = $this->profilSellerService->find($user->id, 'user_id');
 
+        $data = [
+            'user_id'    => $user->id,
+            'username'   => $request->username,
+            'nama_toko'  => $request->nama_toko,
+            'notlp'      => $request->no_telp,
+            'alamat'     => $request->alamat,
+            'provinsi'   => $request->provinsi,
+            'kabupaten'  => $request->kabupaten,
+            'kecamatan'  => $request->kecamatan,
+            'desa'       => $request->desa,
+            'latitude'   => $request->latitude,
+            'longitude'  => $request->longitude,
+            'flag'       => 3, // ✅ Setelah isi informasi toko, ubah flag ke 3
+        ];
+
         if ($profil) {
-            $this->profilSellerService->update($profil->id, [
-                'user_id'    => $user->id,
-                'username'   => $request->username,
-                'nama_toko'  => $request->nama_toko,
-                'notlp'    => $request->no_telp,
-                'alamat'     => $request->alamat,
-                'provinsi'   => $request->provinsi,
-                'kabupaten'  => $request->kabupaten,
-                'kecamatan'  => $request->kecamatan,
-                'desa'       => $request->desa,
-                'latitude'   => $request->latitude,
-                'longitude'  => $request->longitude,
-            ]);
+            $this->profilSellerService->update($profil->id, $data);
         } else {
-            $this->profilSellerService->store([
-                'user_id'    => $user->id,
-                'username'   => $request->username,
-                'nama_toko'  => $request->nama_toko,
-                'notlp'    => $request->no_telp,
-                'alamat'     => $request->alamat,
-                'provinsi'   => $request->provinsi,
-                'kabupaten'  => $request->kabupaten,
-                'kecamatan'  => $request->kecamatan,
-                'desa'       => $request->desa,
-                'latitude'   => $request->latitude,
-                'longitude'  => $request->longitude,
-            ]);
+            $this->profilSellerService->store($data);
         }
 
         return redirect()->route('buyer.seller.upload_produk')
@@ -194,6 +187,11 @@ class SellerController extends Controller
                 ]);
             }
         }
+
+        // ✅ Setelah upload produk pertama, ubah flag ke aktif (1)
+        // if ($profil->flag < 1) {
+            $this->profilSellerService->update($profil->id, ['flag' => 1]);
+        // }
 
         return redirect()->route('seller.dashboard.index')
             ->with('success', 'Produk dan foto berhasil ditambahkan!');

@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable; 
 
 class Product extends Model
 {
+    use HasFactory, Searchable; 
+
     protected $table = 'products';
     protected $fillable = [
         'profil_id',
@@ -18,6 +21,18 @@ class Product extends Model
         'sub_category_id',
         'brand_id'
     ];
+
+    public function toSearchableArray(): array
+    {
+        // Data yang diindeks untuk Elasticsearch
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'stock' => $this->stock,
+        ];
+    }
 
     public function subCategory()
     {
@@ -43,4 +58,9 @@ class Product extends Model
     {
         return $this->belongsTo(ProfilSeller::class, 'profil_id', 'id');
     }
+
+    // public function first_image()
+    // {
+    //     return $this->hasOne(ProductImage::class)->oldest();
+    // }
 }

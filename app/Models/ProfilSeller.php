@@ -15,6 +15,9 @@ class ProfilSeller extends Model
     const FLAG = [
         0 => 'Tidak Aktif',
         1 => 'Aktif',
+        2 => 'Verifikasi Diri',
+        3 => 'Informasi Toko',
+        4 => 'Upload Produk',
     ];
     protected $table = 'profil_sellers';
     protected $fillable = [

@@ -7,9 +7,9 @@ use App\Services\ProductService;
 use App\Services\ProductImageService;
 use App\Services\ProfilSellerService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection; 
+use Illuminate\Support\Collection;
 
-class ProductController extends Controller
+class SearchController extends Controller
 {
     protected $productService, $productImageService, $profilSellerService;
 
@@ -46,11 +46,10 @@ class ProductController extends Controller
             return redirect()->back()->with('error', 'Silakan masukkan kata kunci pencarian.');
         }
 
-        // --- PENCARIAN PRODUK ---
         $params = [
             'q' => $query,
-            'orders' => ['name' => 'asc'], 
-            'limit' => 100, 
+            'orders' => ['name' => 'asc'],
+            'limit' => 100,
         ];
 
         $results = $this->productService->search($params);
@@ -59,37 +58,26 @@ class ProductController extends Controller
         }
         $result_count = $results->count();
         $productIds = $results->pluck('id')->toArray();
-        $productImagesData = $this->productImageService->search([
-            'product_id' => $productIds, 
-            'limit' => 999
-        ]);
-        
+        $productImagesData = $this->productImageService->getImagesByProductIds($productIds);
+
         $productImages = collect($productImagesData)->groupBy('product_id');
 
         $results = $results->map(function ($product) use ($productImages) {
-            // Menghubungkan gambar pertama
             $product->first_image = $productImages->get($product->id)?->first();
-            
-            // NOTE: Kami akan mengabaikan relasi profil seller pada produk di controller ini
-            // karena kita mencari toko terkait secara terpisah di bawah.
             return $product;
         });
 
-        // --- PENCARIAN TOKO TERKAIT ---
-        // Mencari 1 toko yang namanya atau username-nya cocok dengan query pencarian
         $relatedStores = $this->profilSellerService->searchByName($query, 1);
         $related_store = $relatedStores->first();
-        // -----------------------------
 
         return view('buyer.search.results', [
             'query' => $query,
             'results' => $results,
             'result_count' => $result_count,
-            'related_store' => $related_store, // Kirim data toko terkait ke view
+            'related_store' => $related_store, 
         ]);
     }
 
-    // Method index tetap memanggil searchResults
     public function index(Request $request)
     {
         return $this->searchResults($request);

@@ -11,6 +11,11 @@ class ProductImageService extends Service
     {
         $product = ProductImage::orderBy('id');
 
+        if (isset($params['product_id']) && is_array($params['product_id'])) {
+            $product->whereIn('product_id', $params['product_id']);
+            unset($params['product_id']);
+        }
+
         $product = $this->searchFilter($params, $product, ['product_id']);
         return $this->searchResponse($params, $product);
     }
@@ -50,5 +55,12 @@ class ProductImageService extends Service
     public function deleteByProductId($productId)
     {
         return ProductImage::where('product_id', $productId)->delete();
+    }
+
+    public function getImagesByProductIds(array $productIds)
+    {
+        return ProductImage::whereIn('product_id', $productIds)
+            ->orderBy('id', 'asc')
+            ->get();
     }
 }

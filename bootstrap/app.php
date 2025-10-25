@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'io'=> \App\Http\Middleware\IoMiddleware::class,
             'buyer'=> \App\Http\Middleware\BuyerMiddleware::class,
+            'seller' => \App\Http\Middleware\SellerBuyerMiddleware::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

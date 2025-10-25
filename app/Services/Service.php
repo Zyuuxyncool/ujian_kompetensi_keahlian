@@ -2,6 +2,11 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http; 
+
 class Service
 {
     public function searchFilter($params, $model, $filters)
@@ -17,19 +22,38 @@ class Service
 
     public function searchResponse($params, $model)
     {
+        $isEloquentBuilder = $model instanceof EloquentBuilder || $model instanceof QueryBuilder;
+
         $with = $params['with'] ?? '';
-        if ($with !== '') $model = $model->with($with);
+        if ($with !== '' && $isEloquentBuilder) {
+            $model = $model->with($with);
+        }
+
         $limit = $params['limit'] ?? '';
-        if ($limit !== '') $model = $model->limit($limit);
         $skip = $params['skip'] ?? '';
-        if ($skip !== '') $model = $model->skip($skip);
+
+        if ($isEloquentBuilder) {
+            if ($limit !== '') $model = $model->limit($limit);
+            if ($skip !== '') $model = $model->skip($skip);
+        } else if ($model instanceof Collection) {
+            if ($skip !== '') $model = $model->skip($skip);
+            if ($limit !== '') $model = $model->take($limit);
+        }
 
         $is_trash = $params['is_trash'] ?? '';
-        if ($is_trash !== '') $model = $model->onlyTrashed();
+        if ($is_trash !== '' && $isEloquentBuilder) {
+            $model = $model->onlyTrashed();
+        }
 
         $orders = $params['orders'] ?? '';
         if ($orders !== '') {
-            foreach ($orders as $column => $direction) $model = $model->orderBy($column, $direction);
+            if ($isEloquentBuilder) {
+                foreach ($orders as $column => $direction) $model = $model->orderBy($column, $direction);
+            } else if ($model instanceof Collection) {
+                foreach ($orders as $column => $direction) {
+                    $model = $model->sortBy($column, SORT_REGULAR, strtolower($direction) === 'desc');
+                }
+            }
         }
 
         $count = $params['count'] ?? '';
@@ -39,9 +63,18 @@ class Service
         $first = $params['first'] ?? '';
         if ($first !== '') return $model->first();
         $paginate = $params['paginate'] ?? '';
-        if ($paginate !== '') return $model->paginate($paginate);
 
-        return $model->get();
+        if ($paginate !== '') {
+            if ($isEloquentBuilder) {
+                return $model->paginate($paginate);
+            }
+        }
+
+        if ($isEloquentBuilder) {
+            return $model->get();
+        }
+
+        return $model;
     }
 
     public function cleanNumber($params, $columns = [])
@@ -83,5 +116,4 @@ class Service
         curl_close($curl);
         return $response;
     }
-
 }
